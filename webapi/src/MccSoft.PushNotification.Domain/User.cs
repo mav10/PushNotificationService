@@ -1,4 +1,5 @@
-﻿using MccSoft.DomainHelpers;
+﻿using System;
+using MccSoft.DomainHelpers;
 using Microsoft.AspNetCore.Identity;
 
 namespace MccSoft.PushNotification.Domain
@@ -10,9 +11,27 @@ namespace MccSoft.PushNotification.Domain
         public string LastName { get; set; }
 
         /// <summary>
+        /// Date and time when user was created. (server UTC time).
+        /// </summary>
+        public DateTime CreatedAt { get; private set; }
+
+        /// <summary>
+        /// Date and time when user used the system the last time.
+        /// </summary>
+        public DateTime? LastVisitDateTime { get; private set; }
+
+
+        /// <summary>
+        /// Unique identifier of the User.  
+        /// </summary>
+        public int UniqueId { get; set; }
+
+        /// <summary>
         /// Needed for Entity Framework, keep empty.
         /// </summary>
-        public User() { }
+        public User()
+        {
+        }
 
         /// <summary>
         /// Constructor to initialize User entity.
@@ -29,12 +48,24 @@ namespace MccSoft.PushNotification.Domain
         /// <param name="firstName">First name of the user.</param>
         /// <param name="lastName">Last name of the user.</param>
         /// <param name="email">Identifier of the user.</param>
-        public User(string firstName, string lastName, string email)
+        public User(string firstName, string lastName, string email, DateTime createdAt)
         {
             UserName = email;
             Email = email;
             FirstName = firstName;
             LastName = lastName;
+            CreatedAt = createdAt;
+        }
+
+        /// <summary>
+        /// Combined string from Users's fields used in search queries
+        /// </summary>
+        public string SearchQueryString
+        {
+            get =>
+                $"{UniqueId.ToString()} {FirstName} {LastName}"
+            ;
+            private set { } // empty setter is necessary for EF Core
         }
 
         /// <summary>

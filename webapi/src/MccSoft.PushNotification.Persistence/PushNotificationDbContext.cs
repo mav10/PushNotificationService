@@ -52,6 +52,20 @@ namespace MccSoft.PushNotification.Persistence
             // @"ALTER TABLE ""Patients"" ALTER COLUMN ""NumberSource"" TYPE number_source using (enum_range(null::number_source))[""NumberSource""::int + 1];"
             //     );
             // For details see https://github.com/mcctomsk/backend-frontend-template/wiki/_new#migration-of-existing-data
+            
+            
+            if (Database.IsNpgsql())
+            {
+                builder.Entity<User>()
+                    .Property<int>(p => p.UniqueId)
+                    .ValueGeneratedOnAdd()
+                    .IsUnicode();
+            }
+            else
+            {
+                builder.Entity<User>().Property(d => d.UniqueId)
+                    .HasDefaultValueSql("last_insert_rowid()");
+            }
         }
 
         public IDbContextTransaction BeginTransaction()

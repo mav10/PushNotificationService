@@ -32,6 +32,7 @@ using MccSoft.DomainHelpers.DomainEvents.Events;
 using MccSoft.LowLevelPrimitives;
 using MccSoft.Mailing;
 using MccSoft.PersistenceHelpers.DomainEvents;
+using MccSoft.PushNotification.App.Features.MobileUsers;
 using MccSoft.PushNotification.App.Settings;
 using MccSoft.PushNotification.Domain.Audit;
 using MccSoft.WebApi;
@@ -291,6 +292,8 @@ namespace MccSoft.PushNotification.App
                 .AddScoped<DefaultUserSeeder>()
                 .AddScoped<ProductService>();
 
+            services.AddTransient<UserService>();
+            
             services.AddSingleton<Func<PushNotificationDbContext>>(
                     provider =>
                         () =>
