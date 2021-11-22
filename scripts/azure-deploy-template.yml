@@ -1,6 +1,6 @@
 steps:
 - script: |
-    echo $(BUILD_NUMBER) > /tmp/templateapp_build_$(Environment.Name)
+    echo $(BUILD_NUMBER) > /tmp/pushnotification_build_$(Environment.Name)
 
 - task: DownloadPipelineArtifact@2
   inputs:

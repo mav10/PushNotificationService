@@ -12,7 +12,7 @@ namespace MccSoft.PersistenceHelpers.DomainEvents
     /// <summary>
     /// Interceptor to handle <see cref="LogDomainEvent"/> emitted from entities.
     /// Should be added to DbContext via:
-    /// .AddDbContext<TemplateAppDbContext>((provider, opt) => opt
+    /// .AddDbContext<PushNotificationDbContext>((provider, opt) => opt
     ///       .UseNpgsql(...)
     ///       .AddInterceptors(provider.GetRequiredService<DomainEventsSaveChangesInterceptor>())
     /// )

@@ -34,7 +34,7 @@ Template contains:
 ## Setting up new project from template
 Before using the template for your brand-new app run `yarn rename -n YourProjectName`. Use CamelCase for your project name.
 The script does the following (you could do this manually if you like to):
-1. Rename all files/folders from 'TemplateApp' to your project name.
+1. Rename all files/folders from 'PushNotification' to your project name.
 1. Change all namespaces, classnames, database names, dockerfiles and deployment scripts to suit your project
 1. Adjust SPA port number to something random, so that it doesn't clash with other projects (in package.json: 'start' script, PORT=3011; in Startup.cs: spa.UseProxyToSpaDevelopmentServer("http://localhost:3011/"))
 
@@ -43,7 +43,7 @@ Don't forget to change the favicons/tiles in `frontend/public` folder to the log
 ## How to run locally
 1. Check that connection string in appsettings is correct. Default connection string assumes that you have Postgres running on localhost on standard port with user/pass: postgres/postgres. Adjust connection string if the assumption is wrong.
     1. Make sure the target database exists (or that the postgres user has rights to create databases).
-1. Run backend (Open `webapi/MccSoft.TemplateApp.sln` in Rider/Visual Studio and hit `F5`)
+1. Run backend (Open `webapi/MccSoft.PushNotification.sln` in Rider/Visual Studio and hit `F5`)
 1. Run frontend (`yarn start` from `frontend` folder)
 1. Frontend will open up in browser. Use that url to test the app!
 1. (To authorize, you could use a preconfigured user. Login/Password is in `appsettings.json` under `DefaultUser` section)
@@ -62,7 +62,7 @@ Don't forget to change the favicons/tiles in `frontend/public` folder to the log
       1. Add secret variable `DOCKER_TOKEN` to a pipeline containing created token
       1. Adjust `DOCKER_REGISTRY` and `DOCKER_USER` variables in pipeline.
 1. Run your pipeline. The first Stage (build) should pass.
-1. Disable Pipeline notifications in Azure (i.e. 'Run stage waiting for approval' and 'Manual validation Pending') https://dev.azure.com/mcctomsk/TemplateApp/_settings/notifications. Also disable them in your personal profile: https://dev.azure.com/mcctomsk/_usersSettings/notifications
+1. Disable Pipeline notifications in Azure (i.e. 'Run stage waiting for approval' and 'Manual validation Pending') https://dev.azure.com/mcctomsk/PushNotification/_settings/notifications. Also disable them in your personal profile: https://dev.azure.com/mcctomsk/_usersSettings/notifications
 1. Pipeline contains 2 stages for deploying to DEV and PROD. You could add new deployment stages by copying existing once.
 
 

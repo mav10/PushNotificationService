@@ -3,5 +3,5 @@ rem Download coverage.cobertura.xml files from build Artifacts (backend_coverage
 rem Then run coverage.bat and check `./cobertura/report` folder to see the coverage.
 rem You could apply filters to see the coverage on separate files/classes.
 
-dotnet reportgenerator -reports:cobertura/* -targetdir:cobertura/report -sourcedirs:./ -assemblyfilters:+MccSoft.TemplateApp.App;+MccSoft.TemplateApp.Common;+MccSoft.TemplateApp.Domain
+dotnet reportgenerator -reports:cobertura/* -targetdir:cobertura/report -sourcedirs:./ -assemblyfilters:+MccSoft.PushNotification.App;+MccSoft.PushNotification.Common;+MccSoft.PushNotification.Domain
 open cobertura/report/index.html

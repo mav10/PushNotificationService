@@ -17,7 +17,7 @@ export type FetchLoginResponse = {
 
 const clientId = 'web-client';
 const clientKey = 'any';
-const scopes = 'offline_access profile MccSoft.TemplateApp.AppAPI';
+const scopes = 'offline_access profile MccSoft.PushNotification.AppAPI';
 const backendUri = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 export const sendLoginRequest = async (
   userName: string,

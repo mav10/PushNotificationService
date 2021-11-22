@@ -1,5 +1,5 @@
 {
-  "Common_App": "TemplateApp",
+  "Common_App": "PushNotification",
   "Page": {
     "Login": {
       "login_field": "Login",

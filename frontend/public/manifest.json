@@ -1,6 +1,6 @@
 {
-  "short_name": "Template App",
-  "name": "Template App web application",
+  "short_name": "Push Notification",
+  "name": "Push Notification web application",
   "icons": [
     {
       "src": "android-chrome-192x192.png",

@@ -3,8 +3,8 @@ trigger:
 
 variables:
   BUILD_NUMBER: 0.1.$(Build.BuildId)
-  DOCKER_REGISTRY: 'registry.gitlab.com/mcctemplateapp1/main'
-  DOCKER_USER: 'mcctemplateapp'
+  DOCKER_REGISTRY: 'registry.gitlab.com/mccpushnotification1/main'
+  DOCKER_USER: 'mccpushnotification'
 
 stages:
   - stage: Build
@@ -76,7 +76,7 @@ stages:
           - script: |
               cd ./webapi
               dotnet tool restore
-              dotnet reportgenerator -reports:../cobertura/* -targetdir:../cobertura/report -sourcedirs:./ -assemblyfilters:+MccSoft.TemplateApp.App\;+MccSoft.TemplateApp.Common\;+MccSoft.TemplateApp.Domain
+              dotnet reportgenerator -reports:../cobertura/* -targetdir:../cobertura/report -sourcedirs:./ -assemblyfilters:+MccSoft.PushNotification.App\;+MccSoft.PushNotification.Common\;+MccSoft.PushNotification.Domain
             displayName: 'generate coverage report'
 
           - publish: './cobertura'

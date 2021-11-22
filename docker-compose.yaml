@@ -3,7 +3,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:13.3
-    container_name: postgres_templateapp
+    container_name: postgres_pushnotification
     restart: always
     networks:
       - internal
@@ -18,7 +18,7 @@ services:
 
   web:
     image: "${IMAGE_URL}"
-    container_name: web_templateapp
+    container_name: web_pushnotification
     restart: always
     networks:
       - internal
@@ -44,7 +44,7 @@ services:
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy
-    container_name: nginx-proxy_templateapp
+    container_name: nginx-proxy_pushnotification
     restart: always
     networks:
       - load-balancer
@@ -64,7 +64,7 @@ services:
 
   acme:
     image: nginxproxy/acme-companion
-    container_name: acme_templateapp
+    container_name: acme_pushnotification
     restart: always
     depends_on:
       - "nginx-proxy"
@@ -76,7 +76,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - DEFAULT_EMAIL=${EMAIL}
-      - NGINX_PROXY_CONTAINER=nginx-proxy_templateapp
+      - NGINX_PROXY_CONTAINER=nginx-proxy_pushnotification
     profiles:
       - nginx
 

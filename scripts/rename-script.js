@@ -29,30 +29,30 @@ const backendPortNumber = Math.round(Math.random() * 1000) + 49000;
 console.log(`BackendPortNumber: ${backendPortNumber}`);
 
 const replacements = [
-  { find: "TemplateApp", replace: projectName },
-  { find: "templateapp", replace: projectName.toLowerCase() },
+  { find: "PushNotification", replace: projectName },
+  { find: "pushnotification", replace: projectName.toLowerCase() },
   {
-    find: "templateApp",
+    find: "pushNotification",
     replace:
       camelCase(projectName) /* converts 'ProjectName' to 'projectName'*/,
   },
   {
-    find: "template-app",
+    find: "push-notification",
     replace:
       paramCase(projectName) /* converts 'projectName' to 'project-name' */,
   },
   {
-    find: "template_app",
+    find: "push_notification",
     replace:
       snakeCase(projectName) /* converts 'projectName' to 'project-name' */,
   },
   {
-    find: "Template App",
+    find: "Push Notification",
     replace:
       capitalCase(projectName) /* converts 'ProjectName' to 'Project Name' */,
   },
   {
-    find: "TEMPLATE_APP",
+    find: "PUSH_NOTIFICATION",
     replace:
       constantCase(projectName) /* converts 'ProjectName' to 'Project Name' */,
   },
@@ -91,7 +91,7 @@ function changeFrontendPortNumber(port) {
   replace({
     regex: /spa\.UseProxyToSpaDevelopmentServer\("http:\/\/localhost:\d+\/"\);/,
     replacement: `spa.UseProxyToSpaDevelopmentServer("http://localhost:${port}/");`,
-    paths: ["./webapi/src/MccSoft.TemplateApp.App/Startup.cs"],
+    paths: ["./webapi/src/MccSoft.PushNotification.App/Startup.cs"],
     silent: true,
   });
   replace({
@@ -107,7 +107,7 @@ function changeBackendPortNumber(port) {
     regex: /"Url": "http:\/\/\*:\d+"/,
     replacement: `"Url": "http://*:${port}"`,
     paths: [
-      "./webapi/src/MccSoft.TemplateApp.App/appsettings.Development.json",
+      "./webapi/src/MccSoft.PushNotification.App/appsettings.Development.json",
     ],
     silent: true,
   });
@@ -115,7 +115,7 @@ function changeBackendPortNumber(port) {
     regex: /"Url": "https:\/\/\*:\d+"/,
     replacement: `"Url": "https://*:${port + 1}"`,
     paths: [
-      "./webapi/src/MccSoft.TemplateApp.App/appsettings.Development.json",
+      "./webapi/src/MccSoft.PushNotification.App/appsettings.Development.json",
     ],
     silent: true,
   });

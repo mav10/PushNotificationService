@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pushnotification-main-postgres-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /var/lib/postgresql/data
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pushnotification-main-postgres-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pushnotification-main-postgres
+  labels:
+    app: pushnotification-main-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pushnotification-main-postgres
+  template:
+    metadata:
+      labels:
+        app: pushnotification-main-postgres
+    spec:
+      volumes:
+        - name: pushnotification-main-postgres-pv-storage
+          persistentVolumeClaim:
+            claimName: push-notification-postgres-pvc
+      containers:
+      - name: pushnotification-main-postgres
+        image: postgres:latest
+        ports:
+          - containerPort: 5432
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        env:
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_PASSWORD
+            value: postgres
+          - name: POSTGRES_DB
+            value: brath-db
+        volumeMounts:
+              - mountPath: "/var/lib/postgresql/data"
+                name: pushnotification-main-postgres-pv-storage
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pushnotification-main-postgres-service
+spec:
+ type: ClusterIP
+ ports:
+  - name: "pushnotification-main-postgres"
+    port: 5432
+    targetPort: 5432
+ selector:
+   app: pushnotification-main-postgres
