@@ -1,10 +1,10 @@
 using System;
 using System.Linq.Expressions;
-using MccSoft.PushNotification.App.Features.MobileUsers.Dto;
+using MccSoft.PushNotification.App.Features.Users.Dto;
 using MccSoft.PushNotification.Domain;
 using NeinLinq;
 
-namespace MccSoft.PushNotification.App.Features.MobileUsers
+namespace MccSoft.PushNotification.App.Features.Users
 {
     public static class UserExtensions
     {

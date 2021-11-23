@@ -1,16 +1,15 @@
 using System.Threading.Tasks;
-using MccSoft.PushNotification.App.Features.MobileUsers.Dto;
-using MccSoft.PushNotification.App.Features.Products.Dto;
+using MccSoft.PushNotification.App.Features.Users.Dto;
+using MccSoft.PushNotification.App.Utils;
 using MccSoft.WebApi.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MccSoft.PushNotification.App.Features.MobileUsers
+namespace MccSoft.PushNotification.App.Features.Users
 {
-    [ApiController]
     [Authorize]
     [Route("api/users")]
-    public class UserController
+    public class UserController : ControllerBase
     {
         private readonly UserService _userService;
 
@@ -38,7 +37,6 @@ namespace MccSoft.PushNotification.App.Features.MobileUsers
         [HttpGet]
         public async Task<PagedResult<UserDto>> GetAllUsers([FromQuery] SearchUserDto dto)
         {
-            
             return await _userService.GetUsers(dto);
         }
 
@@ -46,11 +44,26 @@ namespace MccSoft.PushNotification.App.Features.MobileUsers
         /// Creates new user with given params.
         /// </summary>
         /// <param name="dto">Create user DTO.</param>
+        /// <response code="201">Returns the newly created user DTO.</response>
+        /// <response code="400">Invalid data was specified.</response>
         /// <returns>Return newly created user.</returns>
         [HttpPost]
-        public async Task<UserDto> CreateUser([FromBody] CreateUserDto dto)
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400, Type = typeof(ValidationProblemDetails))]
+        public async Task<CreatedAtActionResult> CreateUser([FromBody] CreateUserDto dto)
         {
-            return await _userService.CreateUser(dto);
+            var userDto = await _userService.CreateUser(User.GetUserId(), dto);
+            return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
+        }
+
+        /// <summary>
+        /// Generates authentication code for mobile user.
+        /// </summary>
+        /// <returns>Returns auth code.</returns>
+        [HttpPost("code")]
+        public async Task<string> GenerateUserAccessCode(string userId)
+        {
+            return await _userService.GenerateCode(User.GetUserId(), userId);
         }
     }
 }

@@ -32,7 +32,7 @@ using MccSoft.DomainHelpers.DomainEvents.Events;
 using MccSoft.LowLevelPrimitives;
 using MccSoft.Mailing;
 using MccSoft.PersistenceHelpers.DomainEvents;
-using MccSoft.PushNotification.App.Features.MobileUsers;
+using MccSoft.PushNotification.App.Features.Users;
 using MccSoft.PushNotification.App.Settings;
 using MccSoft.PushNotification.Domain.Audit;
 using MccSoft.WebApi;
@@ -607,7 +607,8 @@ namespace MccSoft.PushNotification.App
             AddIdentityServerCertificate(identityServerBuilder);
             identityServerBuilder.AddApiAuthorization<User, PushNotificationDbContext>(options => { })
                 .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
-                .AddExtensionGrantValidator<PushNotificationExternalAuthenticationGrantValidator>();
+                .AddExtensionGrantValidator<PushNotificationExternalAuthenticationGrantValidator>()
+                .AddExtensionGrantValidator<MobileCodeGrantValidator>();
 
             services.AddAuthentication().AddIdentityServerJwt();
             services.Configure<JwtBearerOptions>(

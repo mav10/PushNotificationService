@@ -1,7 +1,6 @@
 using System;
-using MccSoft.PushNotification.Persistence;
 
-namespace MccSoft.PushNotification.App.Features.MobileUsers.Dto
+namespace MccSoft.PushNotification.App.Features.Users.Dto
 {
     public class UserDto
     {

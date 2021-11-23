@@ -1,11 +1,12 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityModel;
 using MccSoft.Logging;
 using MccSoft.LowLevelPrimitives.Exceptions;
 using MccSoft.PersistenceHelpers;
-using MccSoft.PushNotification.App.Features.MobileUsers.Dto;
-using MccSoft.PushNotification.App.Features.Products;
 using MccSoft.PushNotification.App.Features.Products.Dto;
+using MccSoft.PushNotification.App.Features.Users.Dto;
 using MccSoft.PushNotification.App.Utils;
 using MccSoft.PushNotification.Domain;
 using MccSoft.PushNotification.Persistence;
@@ -13,12 +14,12 @@ using MccSoft.WebApi.Pagination;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
-namespace MccSoft.PushNotification.App.Features.MobileUsers
+namespace MccSoft.PushNotification.App.Features.Users
 {
     public class UserService
     {
         /// <summary>
-        /// use only for read operations. For data manipulation use transaction based solution <see cref="_retryHelper"/>.
+        /// use only for read operations. For data manipulation use transaction based solution <see cref="_userManger"/>.
         /// </summary>
         private readonly PushNotificationDbContext _readOnlyContext;
 
@@ -77,10 +78,11 @@ namespace MccSoft.PushNotification.App.Features.MobileUsers
         /// Creates new user with login and password
         /// </summary>
         /// <returns>Returns created user.</returns>
-        public async Task<UserDto> CreateUser(CreateUserDto dto)
+        public async Task<UserDto> CreateUser(string userId, CreateUserDto dto)
         {
             return await _logger.LogOperation(new OperationContext()
             {
+                { Field.Named("UserId"), userId },
                 { Field.Named(nameof(dto.Login)), dto.Login }
             }, async () =>
             {
@@ -95,6 +97,63 @@ namespace MccSoft.PushNotification.App.Features.MobileUsers
                 }
 
                 throw new ValidationException("Impossible to create user");
+            });
+        }
+
+        /// <summary>
+        /// Generates and set code as password for requested User.
+        /// </summary>
+        /// <param name="userId">User who generates a code</param>
+        /// <param name="requestedUserId">User for whom generate a code</param>
+        /// <returns>Returns string code of auth. (in not secure representation).</returns>
+        public async Task<string> GenerateCode(string userId, string requestedUserId)
+        {
+            return await _logger.LogOperation(new OperationContext()
+            {
+                { Field.Named("UserId"), userId },
+                { Field.Named("RequestUserId"), requestedUserId }
+            }, async () =>
+            {
+                var user = await _userManager.FindByIdAsync(requestedUserId);
+                var opts = new PasswordOptions()
+                {
+                    RequiredLength = 5,
+                    RequiredUniqueChars = 2,
+                    RequireDigit = true,
+                    RequireLowercase = false,
+                    RequireNonAlphanumeric = false,
+                    RequireUppercase = false
+                };
+                string[] randomChars = new[]
+                {
+                    "0123456789", // digits
+                };
+                CryptoRandom rand = new CryptoRandom();
+                List<char> chars = new List<char>();
+
+                chars.Insert(rand.Next(0, chars.Count), randomChars[0][rand.Next(0, randomChars[0].Length)]);
+
+                for (var i = chars.Count;
+                    i < opts.RequiredLength || chars.Distinct().Count() < opts.RequiredUniqueChars;
+                    i++)
+                {
+                    string rcs = randomChars[rand.Next(0, randomChars.Length)];
+                    chars.Insert(rand.Next(0, chars.Count), 
+                        rcs[rand.Next(0, rcs.Length)]);
+
+                }
+
+                var isThereCode = await _userManager.HasPasswordAsync(user);
+                if (isThereCode)
+                {
+                    await _userManager.RemovePasswordAsync(user);
+                }
+
+                var notSecureCode = new string(chars.ToArray());
+                await _userManager.AddPasswordAsync(user, notSecureCode);
+
+                var accessCode = user.UniqueId.ToString("D3") + notSecureCode; 
+                return accessCode;
             });
         }
     }

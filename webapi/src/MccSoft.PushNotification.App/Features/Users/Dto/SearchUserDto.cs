@@ -1,7 +1,6 @@
-using MccSoft.PushNotification.Domain;
 using MccSoft.WebApi.Pagination;
 
-namespace MccSoft.PushNotification.App.Features.Products.Dto
+namespace MccSoft.PushNotification.App.Features.Users.Dto
 {
     public class SearchUserDto : PagedRequestDto
     {
