@@ -12,10 +12,14 @@ import { useSortBy, useTable } from 'react-table';
 import { UserDto } from '../../../services/api/api-client';
 import { useUpdateSortByInUrl } from '../../../components/uikit/table/useUpdateSortByInUrl';
 import { Button } from 'components/uikit/buttons/Button';
+import { AppModalContainer } from '../../../components/uikit/modal/Modal.component';
+import { useModal } from 'application/hooks/useModal';
+import { UserCreateComponent } from './create/UserCreate.component';
 
 const styles = require('./UserList.module.scss');
 
 export const UserList = () => {
+  const { visible, closeModal, openModal } = useModal('CLOSED');
   const [queryParams, setQueryParams] = useQueryParams({
     search: StringParam,
     ...pagingSortingQueryParams(5),
@@ -31,7 +35,7 @@ export const UserList = () => {
       columns: useMemo(() => {
         return [
           {
-            accessor: 'id',
+            accessor: 'uniqueId',
             Cell: ({ row }) => <div>{row.original.uniqueId}</div>,
             width: 'auto',
             Header: 'Id',
@@ -67,7 +71,7 @@ export const UserList = () => {
     <div className={styles.container}>
       <div className={styles.topHeader}>
         <span>Users</span>
-        <Button onClick={() => {}} title={'Create new user'} />
+        <Button onClick={openModal} title={'Create new user'} />
       </div>
       <Loading loading={usersQuery.isLoading}>
         <div className={styles.tableContainer}>
@@ -80,6 +84,14 @@ export const UserList = () => {
           changePagination={setQueryParams}
         />
       </Loading>
+
+      <AppModalContainer
+        title={'User creation'}
+        visible={visible}
+        onHide={closeModal}
+      >
+        <UserCreateComponent onClose={closeModal} />
+      </AppModalContainer>
     </div>
   );
 };

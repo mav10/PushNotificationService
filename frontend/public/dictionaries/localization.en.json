@@ -21,6 +21,12 @@
       "combobox": "Combobox",
       "submit_button_title": "Submit",
       "multi_select_dropdown": "Multi select"
+    },
+    "UserForm": {
+      "FirstName": "First name",
+      "LastName": "Last name",
+      "Login": "Login for app",
+      "CreateButton": "Create"
     }
   },
   "uikit": {

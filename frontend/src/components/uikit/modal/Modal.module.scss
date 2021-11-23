@@ -1,0 +1,78 @@
+@import 'src/styles/variables';
+
+.scrollableContent {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.container {
+  background: $white;
+  box-shadow: 0 2px 25px rgba(80, 95, 154, 0.2);
+  border-radius: 10px;
+  width: auto;
+  min-width: 435px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  padding: 30px 25px 25px 30px;
+  justify-content: space-between;
+  border-bottom: 1px solid $border-input;
+}
+
+.headerWrapper {
+  display: flex;
+  align-items: baseline;
+}
+
+.headerText {
+  padding-left: 30px;
+}
+
+.body {
+  padding: 20px 30px 25px 30px;
+  max-height: calc(0.83 * 100vh);
+  overflow-y: scroll;
+}
+
+.body::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+  background-color: transparent;
+  border: none;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: $hint-text-color;
+  border-radius: 10px;
+}
+
+.backdrop {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.closeButton {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin-left: 25px;
+}
+
+.closIcon path {
+  fill: $caret-color;
+}
+
+.closIcon:hover,
+.closeButton:hover .closIcon path {
+  fill: var(--plain);
+}
+
+.closIcon:active,
+.closeButton:active .closIcon path {
+  fill: var(--plain);
+}
+
+.footer {
+}
