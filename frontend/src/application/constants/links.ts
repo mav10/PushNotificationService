@@ -4,6 +4,8 @@ export const Links = {
   },
   Authorized: {
     Dashboard: '/',
+    Users: '/users',
+    Notifications: '/notifications',
     Products: '/products',
     ProductDetails: (id?: number) => `/products/${id ?? ':id'}`,
     CreateProduct: '/products/create',

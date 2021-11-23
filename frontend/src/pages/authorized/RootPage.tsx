@@ -8,6 +8,9 @@ import { ProductListPage } from 'pages/authorized/products/ProductListPage';
 import React from 'react';
 import { Route, Routes } from 'react-router';
 import { UiKitPage } from './uikit/UiKitPage';
+import { UserList } from './users/UserList.component';
+import { MenuBarComponent } from './menu/MenuBar.component';
+
 const styles = require('./RootPage.module.scss');
 
 export const RootPage: React.FC = () => {
@@ -15,33 +18,43 @@ export const RootPage: React.FC = () => {
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.content}>
-          <Routes>
-            <Route path={Links.Authorized.UiKit} element={<UiKitPage />} />
-            <Route
-              path={Links.Authorized.CreateProduct}
-              element={<CreateProductPage />}
-            />
-            <Route
-              path={Links.Authorized.ProductDetails()}
-              element={<CreateProductPage />}
-            />
-            <Route
-              path={Links.Authorized.Products}
-              element={<ProductListPage />}
-            />
-            <Route path={'/*'} element={<ProductListPage />} />
-          </Routes>
+        <div className={styles.navigationBar}>
+          <MenuBarComponent />
         </div>
-        <div className={styles.bottomNavigation}>
-          <div>Version: {appVersion()}</div>
-          <div className={styles.logOutWrapper}>
-            <Button
-              onClick={() => {
-                dispatch(AuthActions.logoutAction());
-              }}
-              title={'Log Out'}
-            />
+        <div className={styles.contentWrapper}>
+          <div className={styles.content}>
+            <Routes>
+              <Route path={Links.Authorized.UiKit} element={<UiKitPage />} />
+              <Route
+                path={Links.Authorized.CreateProduct}
+                element={<CreateProductPage />}
+              />
+              <Route
+                path={Links.Authorized.ProductDetails()}
+                element={<CreateProductPage />}
+              />
+              <Route
+                path={Links.Authorized.Products}
+                element={<ProductListPage />}
+              />
+              <Route path={Links.Authorized.Users} element={<UserList />} />
+              <Route
+                path={Links.Authorized.Notifications}
+                element={<ProductListPage />}
+              />
+              <Route path={'/*'} element={<ProductListPage />} />
+            </Routes>
+          </div>
+          <div className={styles.bottomNavigation}>
+            <div>Version: {appVersion()}</div>
+            <div className={styles.logOutWrapper}>
+              <Button
+                onClick={() => {
+                  dispatch(AuthActions.logoutAction());
+                }}
+                title={'Log Out'}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -4,11 +4,26 @@
   display: flex;
   justify-content: space-between;
 }
-.container {
-  flex: 1;
+
+.navigation-bar {
+  padding: 1%;
+  background: #0e4195;
   display: flex;
   flex-direction: column;
 }
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 1% 3%;
+}
+
 .content {
   flex: 1;
+  height: 90vh;
 }

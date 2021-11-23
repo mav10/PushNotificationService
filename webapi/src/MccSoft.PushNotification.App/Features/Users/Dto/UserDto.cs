@@ -10,6 +10,11 @@ namespace MccSoft.PushNotification.App.Features.Users.Dto
         public string Id { get; set; }
         
         /// <summary>
+        /// Human-readable Id.
+        /// </summary>
+        public int UniqueId { get; set; }
+        
+        /// <summary>
         /// User's first and last name.
         /// </summary>
         public string FullName { get; set; }

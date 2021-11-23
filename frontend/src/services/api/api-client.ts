@@ -7,2297 +7,2899 @@
 //----------------------
 // ReSharper disable InconsistentNaming
 
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  CancelToken,
+} from 'axios';
 
 export class UserClient {
-    private instance: AxiosInstance;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private instance: AxiosInstance;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-        this.instance = instance ? instance : axios.create();
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
+  constructor(baseUrl?: string, instance?: AxiosInstance) {
+    this.instance = instance ? instance : axios.create();
+    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+  }
 
-    /**
-     * Gets user by id.
-     * @param id Id of teh expected user.
-     * @return Returns user by Id.
-     */
-    getUser(id: string | null , cancelToken?: CancelToken | undefined): Promise<UserDto> {
-        let url_ = this.baseUrl + "/api/users/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * Gets user by id.
+   * @param id Id of teh expected user.
+   * @return Returns user by Id.
+   */
+  getUser(
+    id: string | null,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<UserDto> {
+    let url_ = this.baseUrl + '/api/users/{id}';
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace('{id}', encodeURIComponent('' + id));
+    url_ = url_.replace(/[?&]$/, '');
 
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
 
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetUser(_response);
-        });
-    }
-
-    protected processGetUser(response: AxiosResponse): Promise<UserDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = UserDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processGetUser(_response);
+      });
+  }
+
+  protected processGetUser(response: AxiosResponse): Promise<UserDto> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<UserDto>(<any>null);
+      }
     }
-
-    /**
-     * Gets list of users.
-     * @param search (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     * @return Returns list of users satisfied by filter and search query.
-     */
-    getAllUsers(search?: string | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined , cancelToken?: CancelToken | undefined): Promise<PagedResultOfUserDto> {
-        let url_ = this.baseUrl + "/api/users?";
-        if (search !== undefined && search !== null)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (offset !== undefined && offset !== null)
-            url_ += "Offset=" + encodeURIComponent("" + offset) + "&";
-        if (limit !== undefined && limit !== null)
-            url_ += "Limit=" + encodeURIComponent("" + limit) + "&";
-        if (sortBy !== undefined && sortBy !== null)
-            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
-        if (sortOrder === null)
-            throw new Error("The parameter 'sortOrder' cannot be null.");
-        else if (sortOrder !== undefined)
-            url_ += "SortOrder=" + encodeURIComponent("" + sortOrder) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetAllUsers(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = UserDto.fromJS(resultData200);
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<UserDto>(<any>null);
+  }
 
-    protected processGetAllUsers(response: AxiosResponse): Promise<PagedResultOfUserDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  /**
+   * Gets list of users.
+   * @param search (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   * @return Returns list of users satisfied by filter and search query.
+   */
+  getAllUsers(
+    search?: string | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<PagedResultOfUserDto> {
+    let url_ = this.baseUrl + '/api/users?';
+    if (search !== undefined && search !== null)
+      url_ += 'Search=' + encodeURIComponent('' + search) + '&';
+    if (offset !== undefined && offset !== null)
+      url_ += 'Offset=' + encodeURIComponent('' + offset) + '&';
+    if (limit !== undefined && limit !== null)
+      url_ += 'Limit=' + encodeURIComponent('' + limit) + '&';
+    if (sortBy !== undefined && sortBy !== null)
+      url_ += 'SortBy=' + encodeURIComponent('' + sortBy) + '&';
+    if (sortOrder === null)
+      throw new Error("The parameter 'sortOrder' cannot be null.");
+    else if (sortOrder !== undefined)
+      url_ += 'SortOrder=' + encodeURIComponent('' + sortOrder) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = PagedResultOfUserDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processGetAllUsers(_response);
+      });
+  }
+
+  protected processGetAllUsers(
+    response: AxiosResponse,
+  ): Promise<PagedResultOfUserDto> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<PagedResultOfUserDto>(<any>null);
+      }
     }
-
-    /**
-     * Creates new user with given params.
-     * @param dto Create user DTO.
-     * @return Return newly created user.
-     */
-    createUser(dto: CreateUserDto , cancelToken?: CancelToken | undefined): Promise<UserDto> {
-        let url_ = this.baseUrl + "/api/users";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(dto);
-
-        let options_ = <AxiosRequestConfig>{
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processCreateUser(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = PagedResultOfUserDto.fromJS(resultData200);
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<PagedResultOfUserDto>(<any>null);
+  }
 
-    protected processCreateUser(response: AxiosResponse): Promise<UserDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  /**
+   * Creates new user with given params.
+   * @param dto Create user DTO.
+   * @return Return newly created user.
+   */
+  createUser(
+    dto: CreateUserDto,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<void> {
+    let url_ = this.baseUrl + '/api/users';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(dto);
+
+    let options_ = <AxiosRequestConfig>{
+      data: content_,
+      method: 'POST',
+      url: url_,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = UserDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processCreateUser(_response);
+      });
+  }
+
+  protected processCreateUser(response: AxiosResponse): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<UserDto>(<any>null);
+      }
     }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'Invalid data was specified.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      return Promise.resolve<void>(<any>null);
+    } else if (status === 201) {
+      const _responseText = response.data;
+      return Promise.resolve<void>(<any>null);
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<void>(<any>null);
+  }
+
+  /**
+   * Generates authentication code for mobile user.
+   * @param userId (optional)
+   * @return Returns auth code.
+   */
+  generateUserAccessCode(
+    userId?: string | null | undefined,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<string> {
+    let url_ = this.baseUrl + '/api/users/code?';
+    if (userId !== undefined && userId !== null)
+      url_ += 'userId=' + encodeURIComponent('' + userId) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'POST',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
+        }
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processGenerateUserAccessCode(_response);
+      });
+  }
+
+  protected processGenerateUserAccessCode(
+    response: AxiosResponse,
+  ): Promise<string> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
+        }
+      }
+    }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = resultData200 !== undefined ? resultData200 : <any>null;
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<string>(<any>null);
+  }
 }
 type GetUserUserQueryParameters = {
-      id: string | null;
+  id: string | null;
 };
 
 type GetAllUsersUserQueryParameters = {
-      search?: string | null | null;
-      offset?: number | null | null;
-      limit?: number | null | null;
-      sortBy?: string | null | null;
-      sortOrder?: SortOrder | null;
+  search?: string | null | null;
+  offset?: number | null | null;
+  limit?: number | null | null;
+  sortBy?: string | null | null;
+  sortOrder?: SortOrder | null;
 };
 
-export class UserQuery{
+export class UserQuery {
+  get baseUrl() {
+    return getBaseUrl() ?? '' + '';
+  }
 
-    get baseUrl() {
-      return getBaseUrl() ?? '' + '';
-    }
+  static get Client() {
+    return createClient(UserClient);
+  }
 
-    static get Client() {
-        return createClient(UserClient);
-    }
+  static get Url() {
+    return new UserQuery();
+  }
 
-    static get Url() {
-        return new UserQuery();
-    }
-
-    getUser(id: string | null): string {
-    let url_ = this.baseUrl + "/api/users/{id}";
+  getUser(id: string | null): string {
+    let url_ = this.baseUrl + '/api/users/{id}';
     if (id === undefined || id === null)
-        throw new Error("The parameter 'id' must be defined.");
-    url_ = url_.replace("{id}", encodeURIComponent("" + id));
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
-    }
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace('{id}', encodeURIComponent('' + id));
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
 
-    static getUserDefaultOptions?: UseQueryOptions<UserDto, unknown, UserDto> = {};
-    static getUserQueryKey = (id: string | null) =>
-        removeUndefinedFromArrayTail([
-            'UserClient',
-            'getUser',
-            id,
-        ]);
-    private static getUser(context: QueryFunctionContext) {
-        return UserQuery.Client.getUser(
-                context.queryKey[2] as string | null
-            );
-    }
+  static getUserDefaultOptions?: UseQueryOptions<UserDto, unknown, UserDto> =
+    {};
+  static getUserQueryKey = (id: string | null) =>
+    removeUndefinedFromArrayTail(['UserClient', 'getUser', id]);
+  private static getUser(context: QueryFunctionContext) {
+    return UserQuery.Client.getUser(context.queryKey[2] as string | null);
+  }
 
-    static useGetUserQuery<TSelectData = UserDto, TError = unknown>(dto: GetUserUserQueryParameters, options?: UseQueryOptions<UserDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    /**
-     * Gets user by id.
-     * @param id Id of teh expected user.
-     * @return Returns user by Id.
-     */
-    static useGetUserQuery<TSelectData = UserDto, TError = unknown>(id: string | null, options?: UseQueryOptions<UserDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useGetUserQuery<TSelectData = UserDto, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
+  static useGetUserQuery<TSelectData = UserDto, TError = unknown>(
+    dto: GetUserUserQueryParameters,
+    options?: UseQueryOptions<UserDto, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  /**
+   * Gets user by id.
+   * @param id Id of teh expected user.
+   * @return Returns user by Id.
+   */
+  static useGetUserQuery<TSelectData = UserDto, TError = unknown>(
+    id: string | null,
+    options?: UseQueryOptions<UserDto, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useGetUserQuery<TSelectData = UserDto, TError = unknown>(
+    ...params: any[]
+  ): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<UserDto, TError, TSelectData> | undefined =
+      undefined;
+    let id: any = undefined;
 
-        let options: UseQueryOptions<UserDto, TError, TSelectData> | undefined = undefined;
-        let id: any = undefined;
-        
-        if (params.length > 0) {
-            if (isParameterObject(params[0])) {
-                ({ id,  } = params[0] as GetUserUserQueryParameters);
-                options = params[1];
-            } else {
-                [id,  options] = params;
-            }
-        }
-    
-
-        return useQuery<UserDto, TError, TSelectData>({
-            queryFn: UserQuery.getUser,
-            queryKey: UserQuery.getUserQueryKey(id),
-            ...UserQuery.getUserDefaultOptions as unknown as UseQueryOptions<UserDto, TError, TSelectData>,
-            ...options,
-        });
-    }
-    /**
-     * Gets user by id.
-     * @param id Id of teh expected user.
-     * @return Returns user by Id.
-     */
-    static setGetUserData(queryClient: QueryClient, updater: (data: UserDto | undefined) => UserDto, id: string | null) {
-        queryClient.setQueryData(UserQuery.getUserQueryKey(id),
-            updater
-        );
-    }
-
-    /**
-     * Gets user by id.
-     * @param id Id of teh expected user.
-     * @return Returns user by Id.
-     */
-    static setGetUserDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: UserDto | undefined) => UserDto) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-    
-
-    getAllUsers(search?: string | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined): string {
-    let url_ = this.baseUrl + "/api/users?";
-    if (search !== undefined && search !== null)
-        url_ += "Search=" + encodeURIComponent("" + search) + "&";
-    if (offset !== undefined && offset !== null)
-        url_ += "Offset=" + encodeURIComponent("" + offset) + "&";
-    if (limit !== undefined && limit !== null)
-        url_ += "Limit=" + encodeURIComponent("" + limit) + "&";
-    if (sortBy !== undefined && sortBy !== null)
-        url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
-    if (sortOrder === null)
-        throw new Error("The parameter 'sortOrder' cannot be null.");
-    else if (sortOrder !== undefined)
-        url_ += "SortOrder=" + encodeURIComponent("" + sortOrder) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
-    }
-
-    static getAllUsersDefaultOptions?: UseQueryOptions<PagedResultOfUserDto, unknown, PagedResultOfUserDto> = {};
-    static getAllUsersQueryKey = (search?: string | null | undefined,offset?: number | null | undefined,limit?: number | null | undefined,sortBy?: string | null | undefined,sortOrder?: SortOrder | undefined) =>
-        removeUndefinedFromArrayTail([
-            'UserClient',
-            'getAllUsers',
-            search,
-            offset,
-            limit,
-            sortBy,
-            sortOrder,
-        ]);
-    private static getAllUsers(context: QueryFunctionContext) {
-        return UserQuery.Client.getAllUsers(
-                context.queryKey[2] as string | null | undefined, 
-                context.queryKey[3] as number | null | undefined, 
-                context.queryKey[4] as number | null | undefined, 
-                context.queryKey[5] as string | null | undefined, 
-                context.queryKey[6] as SortOrder | undefined
-            );
-    }
-
-    static useGetAllUsersQuery<TSelectData = PagedResultOfUserDto, TError = unknown>(dto: GetAllUsersUserQueryParameters, options?: UseQueryOptions<PagedResultOfUserDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    /**
-     * Gets list of users.
-     * @param search (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     * @return Returns list of users satisfied by filter and search query.
-     */
-    static useGetAllUsersQuery<TSelectData = PagedResultOfUserDto, TError = unknown>(search?: string | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined, options?: UseQueryOptions<PagedResultOfUserDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useGetAllUsersQuery<TSelectData = PagedResultOfUserDto, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
-
-        let options: UseQueryOptions<PagedResultOfUserDto, TError, TSelectData> | undefined = undefined;
-        let search: any = undefined;
-        let offset: any = undefined;
-        let limit: any = undefined;
-        let sortBy: any = undefined;
-        let sortOrder: any = undefined;
-        
-        if (params.length > 0) {
-            if (isParameterObject(params[0])) {
-                ({ search, offset, limit, sortBy, sortOrder,  } = params[0] as GetAllUsersUserQueryParameters);
-                options = params[1];
-            } else {
-                [search, offset, limit, sortBy, sortOrder,  options] = params;
-            }
-        }
-    
-
-        return useQuery<PagedResultOfUserDto, TError, TSelectData>({
-            queryFn: UserQuery.getAllUsers,
-            queryKey: UserQuery.getAllUsersQueryKey(search, offset, limit, sortBy, sortOrder),
-            ...UserQuery.getAllUsersDefaultOptions as unknown as UseQueryOptions<PagedResultOfUserDto, TError, TSelectData>,
-            ...options,
-        });
-    }
-    /**
-     * Gets list of users.
-     * @param search (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     * @return Returns list of users satisfied by filter and search query.
-     */
-    static setGetAllUsersData(queryClient: QueryClient, updater: (data: PagedResultOfUserDto | undefined) => PagedResultOfUserDto, search?: string | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined) {
-        queryClient.setQueryData(UserQuery.getAllUsersQueryKey(search, offset, limit, sortBy, sortOrder),
-            updater
-        );
-    }
-
-    /**
-     * Gets list of users.
-     * @param search (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     * @return Returns list of users satisfied by filter and search query.
-     */
-    static setGetAllUsersDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: PagedResultOfUserDto | undefined) => PagedResultOfUserDto) {
-        queryClient.setQueryData(queryKey, updater);
-    }
+    if (params.length > 0) {
+      if (isParameterObject(params[0])) {
+        ({ id } = params[0] as GetUserUserQueryParameters);
+        options = params[1];
+      } else {
+        [id, options] = params;
       }
+    }
+
+    return useQuery<UserDto, TError, TSelectData>({
+      queryFn: UserQuery.getUser,
+      queryKey: UserQuery.getUserQueryKey(id),
+      ...(UserQuery.getUserDefaultOptions as unknown as UseQueryOptions<
+        UserDto,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  /**
+   * Gets user by id.
+   * @param id Id of teh expected user.
+   * @return Returns user by Id.
+   */
+  static setGetUserData(
+    queryClient: QueryClient,
+    updater: (data: UserDto | undefined) => UserDto,
+    id: string | null,
+  ) {
+    queryClient.setQueryData(UserQuery.getUserQueryKey(id), updater);
+  }
+
+  /**
+   * Gets user by id.
+   * @param id Id of teh expected user.
+   * @return Returns user by Id.
+   */
+  static setGetUserDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: UserDto | undefined) => UserDto,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+
+  getAllUsers(
+    search?: string | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+  ): string {
+    let url_ = this.baseUrl + '/api/users?';
+    if (search !== undefined && search !== null)
+      url_ += 'Search=' + encodeURIComponent('' + search) + '&';
+    if (offset !== undefined && offset !== null)
+      url_ += 'Offset=' + encodeURIComponent('' + offset) + '&';
+    if (limit !== undefined && limit !== null)
+      url_ += 'Limit=' + encodeURIComponent('' + limit) + '&';
+    if (sortBy !== undefined && sortBy !== null)
+      url_ += 'SortBy=' + encodeURIComponent('' + sortBy) + '&';
+    if (sortOrder === null)
+      throw new Error("The parameter 'sortOrder' cannot be null.");
+    else if (sortOrder !== undefined)
+      url_ += 'SortOrder=' + encodeURIComponent('' + sortOrder) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
+
+  static getAllUsersDefaultOptions?: UseQueryOptions<
+    PagedResultOfUserDto,
+    unknown,
+    PagedResultOfUserDto
+  > = {};
+  static getAllUsersQueryKey = (
+    search?: string | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+  ) =>
+    removeUndefinedFromArrayTail([
+      'UserClient',
+      'getAllUsers',
+      search,
+      offset,
+      limit,
+      sortBy,
+      sortOrder,
+    ]);
+  private static getAllUsers(context: QueryFunctionContext) {
+    return UserQuery.Client.getAllUsers(
+      context.queryKey[2] as string | null | undefined,
+      context.queryKey[3] as number | null | undefined,
+      context.queryKey[4] as number | null | undefined,
+      context.queryKey[5] as string | null | undefined,
+      context.queryKey[6] as SortOrder | undefined,
+    );
+  }
+
+  static useGetAllUsersQuery<
+    TSelectData = PagedResultOfUserDto,
+    TError = unknown,
+  >(
+    dto: GetAllUsersUserQueryParameters,
+    options?: UseQueryOptions<PagedResultOfUserDto, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  /**
+   * Gets list of users.
+   * @param search (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   * @return Returns list of users satisfied by filter and search query.
+   */
+  static useGetAllUsersQuery<
+    TSelectData = PagedResultOfUserDto,
+    TError = unknown,
+  >(
+    search?: string | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+    options?: UseQueryOptions<PagedResultOfUserDto, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useGetAllUsersQuery<
+    TSelectData = PagedResultOfUserDto,
+    TError = unknown,
+  >(...params: any[]): UseQueryResult<TSelectData, TError> {
+    let options:
+      | UseQueryOptions<PagedResultOfUserDto, TError, TSelectData>
+      | undefined = undefined;
+    let search: any = undefined;
+    let offset: any = undefined;
+    let limit: any = undefined;
+    let sortBy: any = undefined;
+    let sortOrder: any = undefined;
+
+    if (params.length > 0) {
+      if (isParameterObject(params[0])) {
+        ({ search, offset, limit, sortBy, sortOrder } =
+          params[0] as GetAllUsersUserQueryParameters);
+        options = params[1];
+      } else {
+        [search, offset, limit, sortBy, sortOrder, options] = params;
+      }
+    }
+
+    return useQuery<PagedResultOfUserDto, TError, TSelectData>({
+      queryFn: UserQuery.getAllUsers,
+      queryKey: UserQuery.getAllUsersQueryKey(
+        search,
+        offset,
+        limit,
+        sortBy,
+        sortOrder,
+      ),
+      ...(UserQuery.getAllUsersDefaultOptions as unknown as UseQueryOptions<
+        PagedResultOfUserDto,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  /**
+   * Gets list of users.
+   * @param search (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   * @return Returns list of users satisfied by filter and search query.
+   */
+  static setGetAllUsersData(
+    queryClient: QueryClient,
+    updater: (data: PagedResultOfUserDto | undefined) => PagedResultOfUserDto,
+    search?: string | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+  ) {
+    queryClient.setQueryData(
+      UserQuery.getAllUsersQueryKey(search, offset, limit, sortBy, sortOrder),
+      updater,
+    );
+  }
+
+  /**
+   * Gets list of users.
+   * @param search (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   * @return Returns list of users satisfied by filter and search query.
+   */
+  static setGetAllUsersDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: PagedResultOfUserDto | undefined) => PagedResultOfUserDto,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+}
 
 export class ProductClient {
-    private instance: AxiosInstance;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private instance: AxiosInstance;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-        this.instance = instance ? instance : axios.create();
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
+  constructor(baseUrl?: string, instance?: AxiosInstance) {
+    this.instance = instance ? instance : axios.create();
+    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+  }
 
-    create(dto: CreateProductDto , cancelToken?: CancelToken | undefined): Promise<ProductDto> {
-        let url_ = this.baseUrl + "/api/products";
-        url_ = url_.replace(/[?&]$/, "");
+  create(
+    dto: CreateProductDto,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<ProductDto> {
+    let url_ = this.baseUrl + '/api/products';
+    url_ = url_.replace(/[?&]$/, '');
 
-        const content_ = JSON.stringify(dto);
+    const content_ = JSON.stringify(dto);
 
-        let options_ = <AxiosRequestConfig>{
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
+    let options_ = <AxiosRequestConfig>{
+      data: content_,
+      method: 'POST',
+      url: url_,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
 
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processCreate(_response);
-        });
-    }
-
-    protected processCreate(response: AxiosResponse): Promise<ProductDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = ProductDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processCreate(_response);
+      });
+  }
+
+  protected processCreate(response: AxiosResponse): Promise<ProductDto> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<ProductDto>(<any>null);
+      }
     }
-
-    delete(id?: number | undefined , cancelToken?: CancelToken | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/products?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ = <AxiosRequestConfig>{
-            method: "DELETE",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processDelete(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = ProductDto.fromJS(resultData200);
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<ProductDto>(<any>null);
+  }
 
-    protected processDelete(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  delete(
+    id?: number | undefined,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<void> {
+    let url_ = this.baseUrl + '/api/products?';
+    if (id === null) throw new Error("The parameter 'id' cannot be null.");
+    else if (id !== undefined)
+      url_ += 'id=' + encodeURIComponent('' + id) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'DELETE',
+      url: url_,
+      headers: {},
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processDelete(_response);
+      });
+  }
+
+  protected processDelete(response: AxiosResponse): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<void>(<any>null);
+      }
     }
-
-    /**
-     * @param search (optional) 
-     * @param productType (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     */
-    search(search?: string | null | undefined, productType?: ProductType | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined , cancelToken?: CancelToken | undefined): Promise<PagedResultOfProductListItemDto> {
-        let url_ = this.baseUrl + "/api/products?";
-        if (search !== undefined && search !== null)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (productType !== undefined && productType !== null)
-            url_ += "ProductType=" + encodeURIComponent("" + productType) + "&";
-        if (offset !== undefined && offset !== null)
-            url_ += "Offset=" + encodeURIComponent("" + offset) + "&";
-        if (limit !== undefined && limit !== null)
-            url_ += "Limit=" + encodeURIComponent("" + limit) + "&";
-        if (sortBy !== undefined && sortBy !== null)
-            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
-        if (sortOrder === null)
-            throw new Error("The parameter 'sortOrder' cannot be null.");
-        else if (sortOrder !== undefined)
-            url_ += "SortOrder=" + encodeURIComponent("" + sortOrder) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processSearch(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      return Promise.resolve<void>(<any>null);
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<void>(<any>null);
+  }
 
-    protected processSearch(response: AxiosResponse): Promise<PagedResultOfProductListItemDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  /**
+   * @param search (optional)
+   * @param productType (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   */
+  search(
+    search?: string | null | undefined,
+    productType?: ProductType | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<PagedResultOfProductListItemDto> {
+    let url_ = this.baseUrl + '/api/products?';
+    if (search !== undefined && search !== null)
+      url_ += 'Search=' + encodeURIComponent('' + search) + '&';
+    if (productType !== undefined && productType !== null)
+      url_ += 'ProductType=' + encodeURIComponent('' + productType) + '&';
+    if (offset !== undefined && offset !== null)
+      url_ += 'Offset=' + encodeURIComponent('' + offset) + '&';
+    if (limit !== undefined && limit !== null)
+      url_ += 'Limit=' + encodeURIComponent('' + limit) + '&';
+    if (sortBy !== undefined && sortBy !== null)
+      url_ += 'SortBy=' + encodeURIComponent('' + sortBy) + '&';
+    if (sortOrder === null)
+      throw new Error("The parameter 'sortOrder' cannot be null.");
+    else if (sortOrder !== undefined)
+      url_ += 'SortOrder=' + encodeURIComponent('' + sortOrder) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = PagedResultOfProductListItemDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processSearch(_response);
+      });
+  }
+
+  protected processSearch(
+    response: AxiosResponse,
+  ): Promise<PagedResultOfProductListItemDto> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<PagedResultOfProductListItemDto>(<any>null);
+      }
     }
-
-    patch(id: number, dto: PatchProductDto , cancelToken?: CancelToken | undefined): Promise<ProductDto> {
-        let url_ = this.baseUrl + "/api/products/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(dto);
-
-        let options_ = <AxiosRequestConfig>{
-            data: content_,
-            method: "PATCH",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processPatch(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = PagedResultOfProductListItemDto.fromJS(resultData200);
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<PagedResultOfProductListItemDto>(<any>null);
+  }
 
-    protected processPatch(response: AxiosResponse): Promise<ProductDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  patch(
+    id: number,
+    dto: PatchProductDto,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<ProductDto> {
+    let url_ = this.baseUrl + '/api/products/{id}';
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace('{id}', encodeURIComponent('' + id));
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(dto);
+
+    let options_ = <AxiosRequestConfig>{
+      data: content_,
+      method: 'PATCH',
+      url: url_,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = ProductDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processPatch(_response);
+      });
+  }
+
+  protected processPatch(response: AxiosResponse): Promise<ProductDto> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<ProductDto>(<any>null);
+      }
     }
-
-    get(id: number , cancelToken?: CancelToken | undefined): Promise<ProductDto> {
-        let url_ = this.baseUrl + "/api/products/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGet(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = ProductDto.fromJS(resultData200);
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<ProductDto>(<any>null);
+  }
 
-    protected processGet(response: AxiosResponse): Promise<ProductDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  get(id: number, cancelToken?: CancelToken | undefined): Promise<ProductDto> {
+    let url_ = this.baseUrl + '/api/products/{id}';
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace('{id}', encodeURIComponent('' + id));
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = ProductDto.fromJS(resultData200);
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processGet(_response);
+      });
+  }
+
+  protected processGet(response: AxiosResponse): Promise<ProductDto> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<ProductDto>(<any>null);
+      }
     }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = ProductDto.fromJS(resultData200);
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<ProductDto>(<any>null);
+  }
 }
 type SearchProductQueryParameters = {
-      search?: string | null | null;
-      productType?: ProductType | null | null;
-      offset?: number | null | null;
-      limit?: number | null | null;
-      sortBy?: string | null | null;
-      sortOrder?: SortOrder | null;
+  search?: string | null | null;
+  productType?: ProductType | null | null;
+  offset?: number | null | null;
+  limit?: number | null | null;
+  sortBy?: string | null | null;
+  sortOrder?: SortOrder | null;
 };
 
 type GetProductQueryParameters = {
-      id: number;
+  id: number;
 };
 
-export class ProductQuery{
+export class ProductQuery {
+  get baseUrl() {
+    return getBaseUrl() ?? '' + '';
+  }
 
-    get baseUrl() {
-      return getBaseUrl() ?? '' + '';
-    }
+  static get Client() {
+    return createClient(ProductClient);
+  }
 
-    static get Client() {
-        return createClient(ProductClient);
-    }
+  static get Url() {
+    return new ProductQuery();
+  }
 
-    static get Url() {
-        return new ProductQuery();
-    }
-    
-
-    search(search?: string | null | undefined, productType?: ProductType | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined): string {
-    let url_ = this.baseUrl + "/api/products?";
+  search(
+    search?: string | null | undefined,
+    productType?: ProductType | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+  ): string {
+    let url_ = this.baseUrl + '/api/products?';
     if (search !== undefined && search !== null)
-        url_ += "Search=" + encodeURIComponent("" + search) + "&";
+      url_ += 'Search=' + encodeURIComponent('' + search) + '&';
     if (productType !== undefined && productType !== null)
-        url_ += "ProductType=" + encodeURIComponent("" + productType) + "&";
+      url_ += 'ProductType=' + encodeURIComponent('' + productType) + '&';
     if (offset !== undefined && offset !== null)
-        url_ += "Offset=" + encodeURIComponent("" + offset) + "&";
+      url_ += 'Offset=' + encodeURIComponent('' + offset) + '&';
     if (limit !== undefined && limit !== null)
-        url_ += "Limit=" + encodeURIComponent("" + limit) + "&";
+      url_ += 'Limit=' + encodeURIComponent('' + limit) + '&';
     if (sortBy !== undefined && sortBy !== null)
-        url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
+      url_ += 'SortBy=' + encodeURIComponent('' + sortBy) + '&';
     if (sortOrder === null)
-        throw new Error("The parameter 'sortOrder' cannot be null.");
+      throw new Error("The parameter 'sortOrder' cannot be null.");
     else if (sortOrder !== undefined)
-        url_ += "SortOrder=" + encodeURIComponent("" + sortOrder) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
+      url_ += 'SortOrder=' + encodeURIComponent('' + sortOrder) + '&';
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
+
+  static searchDefaultOptions?: UseQueryOptions<
+    PagedResultOfProductListItemDto,
+    unknown,
+    PagedResultOfProductListItemDto
+  > = {};
+  static searchQueryKey = (
+    search?: string | null | undefined,
+    productType?: ProductType | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+  ) =>
+    removeUndefinedFromArrayTail([
+      'ProductClient',
+      'search',
+      search,
+      productType,
+      offset,
+      limit,
+      sortBy,
+      sortOrder,
+    ]);
+  private static search(context: QueryFunctionContext) {
+    return ProductQuery.Client.search(
+      context.queryKey[2] as string | null | undefined,
+      context.queryKey[3] as ProductType | null | undefined,
+      context.queryKey[4] as number | null | undefined,
+      context.queryKey[5] as number | null | undefined,
+      context.queryKey[6] as string | null | undefined,
+      context.queryKey[7] as SortOrder | undefined,
+    );
+  }
+
+  static useSearchQuery<
+    TSelectData = PagedResultOfProductListItemDto,
+    TError = unknown,
+  >(
+    dto: SearchProductQueryParameters,
+    options?: UseQueryOptions<
+      PagedResultOfProductListItemDto,
+      TError,
+      TSelectData
+    >,
+  ): UseQueryResult<TSelectData, TError>;
+  /**
+   * @param search (optional)
+   * @param productType (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   */
+  static useSearchQuery<
+    TSelectData = PagedResultOfProductListItemDto,
+    TError = unknown,
+  >(
+    search?: string | null | undefined,
+    productType?: ProductType | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+    options?: UseQueryOptions<
+      PagedResultOfProductListItemDto,
+      TError,
+      TSelectData
+    >,
+  ): UseQueryResult<TSelectData, TError>;
+  static useSearchQuery<
+    TSelectData = PagedResultOfProductListItemDto,
+    TError = unknown,
+  >(...params: any[]): UseQueryResult<TSelectData, TError> {
+    let options:
+      | UseQueryOptions<PagedResultOfProductListItemDto, TError, TSelectData>
+      | undefined = undefined;
+    let search: any = undefined;
+    let productType: any = undefined;
+    let offset: any = undefined;
+    let limit: any = undefined;
+    let sortBy: any = undefined;
+    let sortOrder: any = undefined;
+
+    if (params.length > 0) {
+      if (isParameterObject(params[0])) {
+        ({ search, productType, offset, limit, sortBy, sortOrder } =
+          params[0] as SearchProductQueryParameters);
+        options = params[1];
+      } else {
+        [search, productType, offset, limit, sortBy, sortOrder, options] =
+          params;
+      }
     }
 
-    static searchDefaultOptions?: UseQueryOptions<PagedResultOfProductListItemDto, unknown, PagedResultOfProductListItemDto> = {};
-    static searchQueryKey = (search?: string | null | undefined,productType?: ProductType | null | undefined,offset?: number | null | undefined,limit?: number | null | undefined,sortBy?: string | null | undefined,sortOrder?: SortOrder | undefined) =>
-        removeUndefinedFromArrayTail([
-            'ProductClient',
-            'search',
-            search,
-            productType,
-            offset,
-            limit,
-            sortBy,
-            sortOrder,
-        ]);
-    private static search(context: QueryFunctionContext) {
-        return ProductQuery.Client.search(
-                context.queryKey[2] as string | null | undefined, 
-                context.queryKey[3] as ProductType | null | undefined, 
-                context.queryKey[4] as number | null | undefined, 
-                context.queryKey[5] as number | null | undefined, 
-                context.queryKey[6] as string | null | undefined, 
-                context.queryKey[7] as SortOrder | undefined
-            );
-    }
+    return useQuery<PagedResultOfProductListItemDto, TError, TSelectData>({
+      queryFn: ProductQuery.search,
+      queryKey: ProductQuery.searchQueryKey(
+        search,
+        productType,
+        offset,
+        limit,
+        sortBy,
+        sortOrder,
+      ),
+      ...(ProductQuery.searchDefaultOptions as unknown as UseQueryOptions<
+        PagedResultOfProductListItemDto,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  /**
+   * @param search (optional)
+   * @param productType (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   */
+  static setSearchData(
+    queryClient: QueryClient,
+    updater: (
+      data: PagedResultOfProductListItemDto | undefined,
+    ) => PagedResultOfProductListItemDto,
+    search?: string | null | undefined,
+    productType?: ProductType | null | undefined,
+    offset?: number | null | undefined,
+    limit?: number | null | undefined,
+    sortBy?: string | null | undefined,
+    sortOrder?: SortOrder | undefined,
+  ) {
+    queryClient.setQueryData(
+      ProductQuery.searchQueryKey(
+        search,
+        productType,
+        offset,
+        limit,
+        sortBy,
+        sortOrder,
+      ),
+      updater,
+    );
+  }
 
-    static useSearchQuery<TSelectData = PagedResultOfProductListItemDto, TError = unknown>(dto: SearchProductQueryParameters, options?: UseQueryOptions<PagedResultOfProductListItemDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    /**
-     * @param search (optional) 
-     * @param productType (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     */
-    static useSearchQuery<TSelectData = PagedResultOfProductListItemDto, TError = unknown>(search?: string | null | undefined, productType?: ProductType | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined, options?: UseQueryOptions<PagedResultOfProductListItemDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useSearchQuery<TSelectData = PagedResultOfProductListItemDto, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
+  /**
+   * @param search (optional)
+   * @param productType (optional)
+   * @param offset (optional) Offset of list.
+   * @param limit (optional) Number of requested records.
+   * @param sortBy (optional) Field name for sorting in DB.
+   * @param sortOrder (optional) Sort direction. Ascending or Descending.
+   */
+  static setSearchDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (
+      data: PagedResultOfProductListItemDto | undefined,
+    ) => PagedResultOfProductListItemDto,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
 
-        let options: UseQueryOptions<PagedResultOfProductListItemDto, TError, TSelectData> | undefined = undefined;
-        let search: any = undefined;
-        let productType: any = undefined;
-        let offset: any = undefined;
-        let limit: any = undefined;
-        let sortBy: any = undefined;
-        let sortOrder: any = undefined;
-        
-        if (params.length > 0) {
-            if (isParameterObject(params[0])) {
-                ({ search, productType, offset, limit, sortBy, sortOrder,  } = params[0] as SearchProductQueryParameters);
-                options = params[1];
-            } else {
-                [search, productType, offset, limit, sortBy, sortOrder,  options] = params;
-            }
-        }
-    
-
-        return useQuery<PagedResultOfProductListItemDto, TError, TSelectData>({
-            queryFn: ProductQuery.search,
-            queryKey: ProductQuery.searchQueryKey(search, productType, offset, limit, sortBy, sortOrder),
-            ...ProductQuery.searchDefaultOptions as unknown as UseQueryOptions<PagedResultOfProductListItemDto, TError, TSelectData>,
-            ...options,
-        });
-    }
-    /**
-     * @param search (optional) 
-     * @param productType (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     */
-    static setSearchData(queryClient: QueryClient, updater: (data: PagedResultOfProductListItemDto | undefined) => PagedResultOfProductListItemDto, search?: string | null | undefined, productType?: ProductType | null | undefined, offset?: number | null | undefined, limit?: number | null | undefined, sortBy?: string | null | undefined, sortOrder?: SortOrder | undefined) {
-        queryClient.setQueryData(ProductQuery.searchQueryKey(search, productType, offset, limit, sortBy, sortOrder),
-            updater
-        );
-    }
-
-    /**
-     * @param search (optional) 
-     * @param productType (optional) 
-     * @param offset (optional) Offset of list.
-     * @param limit (optional) Number of requested records.
-     * @param sortBy (optional) Field name for sorting in DB.
-     * @param sortOrder (optional) Sort direction. Ascending or Descending.
-     */
-    static setSearchDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: PagedResultOfProductListItemDto | undefined) => PagedResultOfProductListItemDto) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-      
-
-    get(id: number): string {
-    let url_ = this.baseUrl + "/api/products/{id}";
+  get(id: number): string {
+    let url_ = this.baseUrl + '/api/products/{id}';
     if (id === undefined || id === null)
-        throw new Error("The parameter 'id' must be defined.");
-    url_ = url_.replace("{id}", encodeURIComponent("" + id));
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace('{id}', encodeURIComponent('' + id));
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
+
+  static getDefaultOptions?: UseQueryOptions<ProductDto, unknown, ProductDto> =
+    {};
+  static getQueryKey = (id: number) =>
+    removeUndefinedFromArrayTail(['ProductClient', 'get', id]);
+  private static get(context: QueryFunctionContext) {
+    return ProductQuery.Client.get(context.queryKey[2] as number);
+  }
+
+  static useGetQuery<TSelectData = ProductDto, TError = unknown>(
+    dto: GetProductQueryParameters,
+    options?: UseQueryOptions<ProductDto, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useGetQuery<TSelectData = ProductDto, TError = unknown>(
+    id: number,
+    options?: UseQueryOptions<ProductDto, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useGetQuery<TSelectData = ProductDto, TError = unknown>(
+    ...params: any[]
+  ): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<ProductDto, TError, TSelectData> | undefined =
+      undefined;
+    let id: any = undefined;
+
+    if (params.length > 0) {
+      if (isParameterObject(params[0])) {
+        ({ id } = params[0] as GetProductQueryParameters);
+        options = params[1];
+      } else {
+        [id, options] = params;
+      }
     }
 
-    static getDefaultOptions?: UseQueryOptions<ProductDto, unknown, ProductDto> = {};
-    static getQueryKey = (id: number) =>
-        removeUndefinedFromArrayTail([
-            'ProductClient',
-            'get',
-            id,
-        ]);
-    private static get(context: QueryFunctionContext) {
-        return ProductQuery.Client.get(
-                context.queryKey[2] as number
-            );
-    }
+    return useQuery<ProductDto, TError, TSelectData>({
+      queryFn: ProductQuery.get,
+      queryKey: ProductQuery.getQueryKey(id),
+      ...(ProductQuery.getDefaultOptions as unknown as UseQueryOptions<
+        ProductDto,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  static setGetData(
+    queryClient: QueryClient,
+    updater: (data: ProductDto | undefined) => ProductDto,
+    id: number,
+  ) {
+    queryClient.setQueryData(ProductQuery.getQueryKey(id), updater);
+  }
 
-    static useGetQuery<TSelectData = ProductDto, TError = unknown>(dto: GetProductQueryParameters, options?: UseQueryOptions<ProductDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useGetQuery<TSelectData = ProductDto, TError = unknown>(id: number, options?: UseQueryOptions<ProductDto, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useGetQuery<TSelectData = ProductDto, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
-
-        let options: UseQueryOptions<ProductDto, TError, TSelectData> | undefined = undefined;
-        let id: any = undefined;
-        
-        if (params.length > 0) {
-            if (isParameterObject(params[0])) {
-                ({ id,  } = params[0] as GetProductQueryParameters);
-                options = params[1];
-            } else {
-                [id,  options] = params;
-            }
-        }
-    
-
-        return useQuery<ProductDto, TError, TSelectData>({
-            queryFn: ProductQuery.get,
-            queryKey: ProductQuery.getQueryKey(id),
-            ...ProductQuery.getDefaultOptions as unknown as UseQueryOptions<ProductDto, TError, TSelectData>,
-            ...options,
-        });
-    }
-    static setGetData(queryClient: QueryClient, updater: (data: ProductDto | undefined) => ProductDto, id: number) {
-        queryClient.setQueryData(ProductQuery.getQueryKey(id),
-            updater
-        );
-    }
-
-    static setGetDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: ProductDto | undefined) => ProductDto) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-    }
+  static setGetDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: ProductDto | undefined) => ProductDto,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+}
 
 export class OidcConfigurationClient {
-    private instance: AxiosInstance;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private instance: AxiosInstance;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-        this.instance = instance ? instance : axios.create();
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
+  constructor(baseUrl?: string, instance?: AxiosInstance) {
+    this.instance = instance ? instance : axios.create();
+    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+  }
 
-    /**
-     * Requests OIDC configuration for oAuth.
-     * @param clientId Client od for requested configuration.
-     * @return Return obj for oAuth config.
-     */
-    getClientRequestParameters(clientId: string | null , cancelToken?: CancelToken | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/_configuration/{clientId}";
-        if (clientId === undefined || clientId === null)
-            throw new Error("The parameter 'clientId' must be defined.");
-        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * Requests OIDC configuration for oAuth.
+   * @param clientId Client od for requested configuration.
+   * @return Return obj for oAuth config.
+   */
+  getClientRequestParameters(
+    clientId: string | null,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<void> {
+    let url_ = this.baseUrl + '/_configuration/{clientId}';
+    if (clientId === undefined || clientId === null)
+      throw new Error("The parameter 'clientId' must be defined.");
+    url_ = url_.replace('{clientId}', encodeURIComponent('' + clientId));
+    url_ = url_.replace(/[?&]$/, '');
 
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {},
+      cancelToken,
+    };
 
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetClientRequestParameters(_response);
-        });
-    }
-
-    protected processGetClientRequestParameters(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad request", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processGetClientRequestParameters(_response);
+      });
+  }
+
+  protected processGetClientRequestParameters(
+    response: AxiosResponse,
+  ): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<void>(<any>null);
+      }
     }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'Bad request',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      return Promise.resolve<void>(<any>null);
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<void>(<any>null);
+  }
 }
 type GetClientRequestParametersOidcConfigurationQueryParameters = {
-      clientId: string | null;
+  clientId: string | null;
 };
 
-export class OidcConfigurationQuery{
+export class OidcConfigurationQuery {
+  get baseUrl() {
+    return getBaseUrl() ?? '' + '';
+  }
 
-    get baseUrl() {
-      return getBaseUrl() ?? '' + '';
-    }
+  static get Client() {
+    return createClient(OidcConfigurationClient);
+  }
 
-    static get Client() {
-        return createClient(OidcConfigurationClient);
-    }
+  static get Url() {
+    return new OidcConfigurationQuery();
+  }
 
-    static get Url() {
-        return new OidcConfigurationQuery();
-    }
-
-    getClientRequestParameters(clientId: string | null): string {
-    let url_ = this.baseUrl + "/_configuration/{clientId}";
+  getClientRequestParameters(clientId: string | null): string {
+    let url_ = this.baseUrl + '/_configuration/{clientId}';
     if (clientId === undefined || clientId === null)
-        throw new Error("The parameter 'clientId' must be defined.");
-    url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
+      throw new Error("The parameter 'clientId' must be defined.");
+    url_ = url_.replace('{clientId}', encodeURIComponent('' + clientId));
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
+
+  static getClientRequestParametersDefaultOptions?: UseQueryOptions<
+    void,
+    unknown,
+    void
+  > = {};
+  static getClientRequestParametersQueryKey = (clientId: string | null) =>
+    removeUndefinedFromArrayTail([
+      'OidcConfigurationClient',
+      'getClientRequestParameters',
+      clientId,
+    ]);
+  private static getClientRequestParameters(context: QueryFunctionContext) {
+    return OidcConfigurationQuery.Client.getClientRequestParameters(
+      context.queryKey[2] as string | null,
+    );
+  }
+
+  static useGetClientRequestParametersQuery<
+    TSelectData = void,
+    TError = unknown,
+  >(
+    dto: GetClientRequestParametersOidcConfigurationQueryParameters,
+    options?: UseQueryOptions<void, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  /**
+   * Requests OIDC configuration for oAuth.
+   * @param clientId Client od for requested configuration.
+   * @return Return obj for oAuth config.
+   */
+  static useGetClientRequestParametersQuery<
+    TSelectData = void,
+    TError = unknown,
+  >(
+    clientId: string | null,
+    options?: UseQueryOptions<void, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useGetClientRequestParametersQuery<
+    TSelectData = void,
+    TError = unknown,
+  >(...params: any[]): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<void, TError, TSelectData> | undefined =
+      undefined;
+    let clientId: any = undefined;
+
+    if (params.length > 0) {
+      if (isParameterObject(params[0])) {
+        ({ clientId } =
+          params[0] as GetClientRequestParametersOidcConfigurationQueryParameters);
+        options = params[1];
+      } else {
+        [clientId, options] = params;
+      }
     }
 
-    static getClientRequestParametersDefaultOptions?: UseQueryOptions<void, unknown, void> = {};
-    static getClientRequestParametersQueryKey = (clientId: string | null) =>
-        removeUndefinedFromArrayTail([
-            'OidcConfigurationClient',
-            'getClientRequestParameters',
-            clientId,
-        ]);
-    private static getClientRequestParameters(context: QueryFunctionContext) {
-        return OidcConfigurationQuery.Client.getClientRequestParameters(
-                context.queryKey[2] as string | null
-            );
-    }
+    return useQuery<void, TError, TSelectData>({
+      queryFn: OidcConfigurationQuery.getClientRequestParameters,
+      queryKey:
+        OidcConfigurationQuery.getClientRequestParametersQueryKey(clientId),
+      ...(OidcConfigurationQuery.getClientRequestParametersDefaultOptions as unknown as UseQueryOptions<
+        void,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  /**
+   * Requests OIDC configuration for oAuth.
+   * @param clientId Client od for requested configuration.
+   * @return Return obj for oAuth config.
+   */
+  static setGetClientRequestParametersData(
+    queryClient: QueryClient,
+    updater: (data: void | undefined) => void,
+    clientId: string | null,
+  ) {
+    queryClient.setQueryData(
+      OidcConfigurationQuery.getClientRequestParametersQueryKey(clientId),
+      updater,
+    );
+  }
 
-    static useGetClientRequestParametersQuery<TSelectData = void, TError = unknown>(dto: GetClientRequestParametersOidcConfigurationQueryParameters, options?: UseQueryOptions<void, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    /**
-     * Requests OIDC configuration for oAuth.
-     * @param clientId Client od for requested configuration.
-     * @return Return obj for oAuth config.
-     */
-    static useGetClientRequestParametersQuery<TSelectData = void, TError = unknown>(clientId: string | null, options?: UseQueryOptions<void, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useGetClientRequestParametersQuery<TSelectData = void, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
-
-        let options: UseQueryOptions<void, TError, TSelectData> | undefined = undefined;
-        let clientId: any = undefined;
-        
-        if (params.length > 0) {
-            if (isParameterObject(params[0])) {
-                ({ clientId,  } = params[0] as GetClientRequestParametersOidcConfigurationQueryParameters);
-                options = params[1];
-            } else {
-                [clientId,  options] = params;
-            }
-        }
-    
-
-        return useQuery<void, TError, TSelectData>({
-            queryFn: OidcConfigurationQuery.getClientRequestParameters,
-            queryKey: OidcConfigurationQuery.getClientRequestParametersQueryKey(clientId),
-            ...OidcConfigurationQuery.getClientRequestParametersDefaultOptions as unknown as UseQueryOptions<void, TError, TSelectData>,
-            ...options,
-        });
-    }
-    /**
-     * Requests OIDC configuration for oAuth.
-     * @param clientId Client od for requested configuration.
-     * @return Return obj for oAuth config.
-     */
-    static setGetClientRequestParametersData(queryClient: QueryClient, updater: (data: void | undefined) => void, clientId: string | null) {
-        queryClient.setQueryData(OidcConfigurationQuery.getClientRequestParametersQueryKey(clientId),
-            updater
-        );
-    }
-
-    /**
-     * Requests OIDC configuration for oAuth.
-     * @param clientId Client od for requested configuration.
-     * @return Return obj for oAuth config.
-     */
-    static setGetClientRequestParametersDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: void | undefined) => void) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-    }
+  /**
+   * Requests OIDC configuration for oAuth.
+   * @param clientId Client od for requested configuration.
+   * @return Return obj for oAuth config.
+   */
+  static setGetClientRequestParametersDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: void | undefined) => void,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+}
 
 export class SignUrlClient {
-    private instance: AxiosInstance;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private instance: AxiosInstance;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-        this.instance = instance ? instance : axios.create();
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
+  constructor(baseUrl?: string, instance?: AxiosInstance) {
+    this.instance = instance ? instance : axios.create();
+    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+  }
 
-    getSignature(  cancelToken?: CancelToken | undefined): Promise<string> {
-        let url_ = this.baseUrl + "/api/sign-url/signature";
-        url_ = url_.replace(/[?&]$/, "");
+  getSignature(cancelToken?: CancelToken | undefined): Promise<string> {
+    let url_ = this.baseUrl + '/api/sign-url/signature';
+    url_ = url_.replace(/[?&]$/, '');
 
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
 
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetSignature(_response);
-        });
-    }
-
-    protected processGetSignature(response: AxiosResponse): Promise<string> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processGetSignature(_response);
+      });
+  }
+
+  protected processGetSignature(response: AxiosResponse): Promise<string> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<string>(<any>null);
+      }
     }
-
-    setSignatureCookie(  cancelToken?: CancelToken | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/sign-url/signature/cookie";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processSetSignatureCookie(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = resultData200 !== undefined ? resultData200 : <any>null;
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<string>(<any>null);
+  }
 
-    protected processSetSignatureCookie(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  setSignatureCookie(cancelToken?: CancelToken | undefined): Promise<void> {
+    let url_ = this.baseUrl + '/api/sign-url/signature/cookie';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {},
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(<any>null);
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processSetSignatureCookie(_response);
+      });
+  }
+
+  protected processSetSignatureCookie(response: AxiosResponse): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<void>(<any>null);
+      }
     }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      return Promise.resolve<void>(<any>null);
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<void>(<any>null);
+  }
 }
-export class SignUrlQuery{
+export class SignUrlQuery {
+  get baseUrl() {
+    return getBaseUrl() ?? '' + '';
+  }
 
-    get baseUrl() {
-      return getBaseUrl() ?? '' + '';
-    }
+  static get Client() {
+    return createClient(SignUrlClient);
+  }
 
-    static get Client() {
-        return createClient(SignUrlClient);
-    }
+  static get Url() {
+    return new SignUrlQuery();
+  }
 
-    static get Url() {
-        return new SignUrlQuery();
-    }
+  getSignature(): string {
+    let url_ = this.baseUrl + '/api/sign-url/signature';
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
 
-    getSignature(): string {
-    let url_ = this.baseUrl + "/api/sign-url/signature";
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
-    }
+  static getSignatureDefaultOptions?: UseQueryOptions<string, unknown, string> =
+    {};
+  static getSignatureQueryKey = () =>
+    removeUndefinedFromArrayTail(['SignUrlClient', 'getSignature']);
+  private static getSignature() {
+    return SignUrlQuery.Client.getSignature();
+  }
 
-    static getSignatureDefaultOptions?: UseQueryOptions<string, unknown, string> = {};
-    static getSignatureQueryKey = () =>
-        removeUndefinedFromArrayTail([
-            'SignUrlClient',
-            'getSignature',
-        ]);
-    private static getSignature() {
-        return SignUrlQuery.Client.getSignature(
-            );
-    }
+  static useGetSignatureQuery<TSelectData = string, TError = unknown>(
+    options?: UseQueryOptions<string, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useGetSignatureQuery<TSelectData = string, TError = unknown>(
+    ...params: any[]
+  ): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<string, TError, TSelectData> | undefined =
+      undefined;
 
-    static useGetSignatureQuery<TSelectData = string, TError = unknown>(options?: UseQueryOptions<string, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useGetSignatureQuery<TSelectData = string, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
+    options = params[0] as any;
 
-        let options: UseQueryOptions<string, TError, TSelectData> | undefined = undefined;
-        
+    return useQuery<string, TError, TSelectData>({
+      queryFn: SignUrlQuery.getSignature,
+      queryKey: SignUrlQuery.getSignatureQueryKey(),
+      ...(SignUrlQuery.getSignatureDefaultOptions as unknown as UseQueryOptions<
+        string,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  static setGetSignatureData(
+    queryClient: QueryClient,
+    updater: (data: string | undefined) => string,
+  ) {
+    queryClient.setQueryData(SignUrlQuery.getSignatureQueryKey(), updater);
+  }
 
-        options = params[0] as any;
-    
+  static setGetSignatureDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: string | undefined) => string,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
 
-        return useQuery<string, TError, TSelectData>({
-            queryFn: SignUrlQuery.getSignature,
-            queryKey: SignUrlQuery.getSignatureQueryKey(),
-            ...SignUrlQuery.getSignatureDefaultOptions as unknown as UseQueryOptions<string, TError, TSelectData>,
-            ...options,
-        });
-    }
-    static setGetSignatureData(queryClient: QueryClient, updater: (data: string | undefined) => string, ) {
-        queryClient.setQueryData(SignUrlQuery.getSignatureQueryKey(),
-            updater
-        );
-    }
+  setSignatureCookie(): string {
+    let url_ = this.baseUrl + '/api/sign-url/signature/cookie';
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
 
-    static setGetSignatureDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: string | undefined) => string) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-    
+  static setSignatureCookieDefaultOptions?: UseQueryOptions<
+    void,
+    unknown,
+    void
+  > = {};
+  static setSignatureCookieQueryKey = () =>
+    removeUndefinedFromArrayTail(['SignUrlClient', 'setSignatureCookie']);
+  private static setSignatureCookie() {
+    return SignUrlQuery.Client.setSignatureCookie();
+  }
 
-    setSignatureCookie(): string {
-    let url_ = this.baseUrl + "/api/sign-url/signature/cookie";
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
-    }
+  static useSetSignatureCookieQuery<TSelectData = void, TError = unknown>(
+    options?: UseQueryOptions<void, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useSetSignatureCookieQuery<TSelectData = void, TError = unknown>(
+    ...params: any[]
+  ): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<void, TError, TSelectData> | undefined =
+      undefined;
 
-    static setSignatureCookieDefaultOptions?: UseQueryOptions<void, unknown, void> = {};
-    static setSignatureCookieQueryKey = () =>
-        removeUndefinedFromArrayTail([
-            'SignUrlClient',
-            'setSignatureCookie',
-        ]);
-    private static setSignatureCookie() {
-        return SignUrlQuery.Client.setSignatureCookie(
-            );
-    }
+    options = params[0] as any;
 
-    static useSetSignatureCookieQuery<TSelectData = void, TError = unknown>(options?: UseQueryOptions<void, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useSetSignatureCookieQuery<TSelectData = void, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
+    return useQuery<void, TError, TSelectData>({
+      queryFn: SignUrlQuery.setSignatureCookie,
+      queryKey: SignUrlQuery.setSignatureCookieQueryKey(),
+      ...(SignUrlQuery.setSignatureCookieDefaultOptions as unknown as UseQueryOptions<
+        void,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  static setSetSignatureCookieData(
+    queryClient: QueryClient,
+    updater: (data: void | undefined) => void,
+  ) {
+    queryClient.setQueryData(
+      SignUrlQuery.setSignatureCookieQueryKey(),
+      updater,
+    );
+  }
 
-        let options: UseQueryOptions<void, TError, TSelectData> | undefined = undefined;
-        
-
-        options = params[0] as any;
-    
-
-        return useQuery<void, TError, TSelectData>({
-            queryFn: SignUrlQuery.setSignatureCookie,
-            queryKey: SignUrlQuery.setSignatureCookieQueryKey(),
-            ...SignUrlQuery.setSignatureCookieDefaultOptions as unknown as UseQueryOptions<void, TError, TSelectData>,
-            ...options,
-        });
-    }
-    static setSetSignatureCookieData(queryClient: QueryClient, updater: (data: void | undefined) => void, ) {
-        queryClient.setQueryData(SignUrlQuery.setSignatureCookieQueryKey(),
-            updater
-        );
-    }
-
-    static setSetSignatureCookieDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: void | undefined) => void) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-    }
+  static setSetSignatureCookieDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: void | undefined) => void,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+}
 
 export class TestDataClient {
-    private instance: AxiosInstance;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private instance: AxiosInstance;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-        this.instance = instance ? instance : axios.create();
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
+  constructor(baseUrl?: string, instance?: AxiosInstance) {
+    this.instance = instance ? instance : axios.create();
+    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+  }
 
-    /**
-     * Demonstrates an error response.
-     */
-    throwError(  cancelToken?: CancelToken | undefined): Promise<string> {
-        let url_ = this.baseUrl + "/error-test";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * Demonstrates an error response.
+   */
+  throwError(cancelToken?: CancelToken | undefined): Promise<string> {
+    let url_ = this.baseUrl + '/error-test';
+    url_ = url_.replace(/[?&]$/, '');
 
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
 
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processThrowError(_response);
-        });
-    }
-
-    protected processThrowError(response: AxiosResponse): Promise<string> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processThrowError(_response);
+      });
+  }
+
+  protected processThrowError(response: AxiosResponse): Promise<string> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<string>(<any>null);
+      }
     }
-
-    /**
-     * Sends a dummy email
-     */
-    sendEmail(  cancelToken?: CancelToken | undefined): Promise<string> {
-        let url_ = this.baseUrl + "/send-email";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ = <AxiosRequestConfig>{
-            method: "POST",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processSendEmail(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = resultData200 !== undefined ? resultData200 : <any>null;
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<string>(<any>null);
+  }
 
-    protected processSendEmail(response: AxiosResponse): Promise<string> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  /**
+   * Sends a dummy email
+   */
+  sendEmail(cancelToken?: CancelToken | undefined): Promise<string> {
+    let url_ = this.baseUrl + '/send-email';
+    url_ = url_.replace(/[?&]$/, '');
+
+    let options_ = <AxiosRequestConfig>{
+      method: 'POST',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processSendEmail(_response);
+      });
+  }
+
+  protected processSendEmail(response: AxiosResponse): Promise<string> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<string>(<any>null);
+      }
     }
-
-    /**
-     * Tests RequiredOrUndefined attribute
-     */
-    patch(dto: TestPatchDto , cancelToken?: CancelToken | undefined): Promise<string> {
-        let url_ = this.baseUrl + "/patch";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(dto);
-
-        let options_ = <AxiosRequestConfig>{
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processPatch(_response);
-        });
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = resultData200 !== undefined ? resultData200 : <any>null;
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
     }
+    return Promise.resolve<string>(<any>null);
+  }
 
-    protected processPatch(response: AxiosResponse): Promise<string> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+  /**
+   * Tests RequiredOrUndefined attribute
+   */
+  patch(
+    dto: TestPatchDto,
+    cancelToken?: CancelToken | undefined,
+  ): Promise<string> {
+    let url_ = this.baseUrl + '/patch';
+    url_ = url_.replace(/[?&]$/, '');
+
+    const content_ = JSON.stringify(dto);
+
+    let options_ = <AxiosRequestConfig>{
+      data: content_,
+      method: 'POST',
+      url: url_,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
+
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processPatch(_response);
+      });
+  }
+
+  protected processPatch(response: AxiosResponse): Promise<string> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<string>(<any>null);
+      }
     }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = resultData200 !== undefined ? resultData200 : <any>null;
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<string>(<any>null);
+  }
 }
-export class TestDataQuery{
+export class TestDataQuery {
+  get baseUrl() {
+    return getBaseUrl() ?? '' + '';
+  }
 
-    get baseUrl() {
-      return getBaseUrl() ?? '' + '';
-    }
+  static get Client() {
+    return createClient(TestDataClient);
+  }
 
-    static get Client() {
-        return createClient(TestDataClient);
-    }
+  static get Url() {
+    return new TestDataQuery();
+  }
 
-    static get Url() {
-        return new TestDataQuery();
-    }
+  throwError(): string {
+    let url_ = this.baseUrl + '/error-test';
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
 
-    throwError(): string {
-    let url_ = this.baseUrl + "/error-test";
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
-    }
+  static throwErrorDefaultOptions?: UseQueryOptions<string, unknown, string> =
+    {};
+  static throwErrorQueryKey = () =>
+    removeUndefinedFromArrayTail(['TestDataClient', 'throwError']);
+  private static throwError() {
+    return TestDataQuery.Client.throwError();
+  }
 
-    static throwErrorDefaultOptions?: UseQueryOptions<string, unknown, string> = {};
-    static throwErrorQueryKey = () =>
-        removeUndefinedFromArrayTail([
-            'TestDataClient',
-            'throwError',
-        ]);
-    private static throwError() {
-        return TestDataQuery.Client.throwError(
-            );
-    }
+  /**
+   * Demonstrates an error response.
+   */
+  static useThrowErrorQuery<TSelectData = string, TError = unknown>(
+    options?: UseQueryOptions<string, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useThrowErrorQuery<TSelectData = string, TError = unknown>(
+    ...params: any[]
+  ): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<string, TError, TSelectData> | undefined =
+      undefined;
 
-    /**
-     * Demonstrates an error response.
-     */
-    static useThrowErrorQuery<TSelectData = string, TError = unknown>(options?: UseQueryOptions<string, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useThrowErrorQuery<TSelectData = string, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
+    options = params[0] as any;
 
-        let options: UseQueryOptions<string, TError, TSelectData> | undefined = undefined;
-        
+    return useQuery<string, TError, TSelectData>({
+      queryFn: TestDataQuery.throwError,
+      queryKey: TestDataQuery.throwErrorQueryKey(),
+      ...(TestDataQuery.throwErrorDefaultOptions as unknown as UseQueryOptions<
+        string,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  /**
+   * Demonstrates an error response.
+   */
+  static setThrowErrorData(
+    queryClient: QueryClient,
+    updater: (data: string | undefined) => string,
+  ) {
+    queryClient.setQueryData(TestDataQuery.throwErrorQueryKey(), updater);
+  }
 
-        options = params[0] as any;
-    
-
-        return useQuery<string, TError, TSelectData>({
-            queryFn: TestDataQuery.throwError,
-            queryKey: TestDataQuery.throwErrorQueryKey(),
-            ...TestDataQuery.throwErrorDefaultOptions as unknown as UseQueryOptions<string, TError, TSelectData>,
-            ...options,
-        });
-    }
-    /**
-     * Demonstrates an error response.
-     */
-    static setThrowErrorData(queryClient: QueryClient, updater: (data: string | undefined) => string, ) {
-        queryClient.setQueryData(TestDataQuery.throwErrorQueryKey(),
-            updater
-        );
-    }
-
-    /**
-     * Demonstrates an error response.
-     */
-    static setThrowErrorDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: string | undefined) => string) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-        }
+  /**
+   * Demonstrates an error response.
+   */
+  static setThrowErrorDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: string | undefined) => string,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+}
 
 export class VersionClient {
-    private instance: AxiosInstance;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private instance: AxiosInstance;
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-        this.instance = instance ? instance : axios.create();
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
-    }
+  constructor(baseUrl?: string, instance?: AxiosInstance) {
+    this.instance = instance ? instance : axios.create();
+    this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+  }
 
-    /**
-     * Gets the version of the service.
-     * @return A string representing the version.
-     */
-    version(  cancelToken?: CancelToken | undefined): Promise<string> {
-        let url_ = this.baseUrl + "/api";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * Gets the version of the service.
+   * @return A string representing the version.
+   */
+  version(cancelToken?: CancelToken | undefined): Promise<string> {
+    let url_ = this.baseUrl + '/api';
+    url_ = url_.replace(/[?&]$/, '');
 
-        let options_ = <AxiosRequestConfig>{
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
+    let options_ = <AxiosRequestConfig>{
+      method: 'GET',
+      url: url_,
+      headers: {
+        Accept: 'application/json',
+      },
+      cancelToken,
+    };
 
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processVersion(_response);
-        });
-    }
-
-    protected processVersion(response: AxiosResponse): Promise<string> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    return this.instance
+      .request(options_)
+      .catch((_error: any) => {
+        if (isAxiosError(_error) && _error.response) {
+          return _error.response;
+        } else {
+          throw _error;
         }
-        if (status === 400) {
-            const _responseText = response.data;
-            let result400: any = null;
-            let resultData400  = _responseText;
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-        } else if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return result200;
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      })
+      .then((_response: AxiosResponse) => {
+        return this.processVersion(_response);
+      });
+  }
+
+  protected processVersion(response: AxiosResponse): Promise<string> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && typeof response.headers === 'object') {
+      for (let k in response.headers) {
+        if (response.headers.hasOwnProperty(k)) {
+          _headers[k] = response.headers[k];
         }
-        return Promise.resolve<string>(<any>null);
+      }
     }
+    if (status === 400) {
+      const _responseText = response.data;
+      let result400: any = null;
+      let resultData400 = _responseText;
+      result400 = ValidationProblemDetails.fromJS(resultData400);
+      return throwException(
+        'A server side error occurred.',
+        status,
+        _responseText,
+        _headers,
+        result400,
+      );
+    } else if (status === 200) {
+      const _responseText = response.data;
+      let result200: any = null;
+      let resultData200 = _responseText;
+      result200 = resultData200 !== undefined ? resultData200 : <any>null;
+      return result200;
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = response.data;
+      return throwException(
+        'An unexpected server error occurred.',
+        status,
+        _responseText,
+        _headers,
+      );
+    }
+    return Promise.resolve<string>(<any>null);
+  }
 }
-export class VersionQuery{
+export class VersionQuery {
+  get baseUrl() {
+    return getBaseUrl() ?? '' + '';
+  }
 
-    get baseUrl() {
-      return getBaseUrl() ?? '' + '';
-    }
+  static get Client() {
+    return createClient(VersionClient);
+  }
 
-    static get Client() {
-        return createClient(VersionClient);
-    }
+  static get Url() {
+    return new VersionQuery();
+  }
 
-    static get Url() {
-        return new VersionQuery();
-    }
+  version(): string {
+    let url_ = this.baseUrl + '/api';
+    url_ = url_.replace(/[?&]$/, '');
+    return url_;
+  }
 
-    version(): string {
-    let url_ = this.baseUrl + "/api";
-    url_ = url_.replace(/[?&]$/, "");
-      return url_;
-    }
+  static versionDefaultOptions?: UseQueryOptions<string, unknown, string> = {};
+  static versionQueryKey = () =>
+    removeUndefinedFromArrayTail(['VersionClient', 'version']);
+  private static version() {
+    return VersionQuery.Client.version();
+  }
 
-    static versionDefaultOptions?: UseQueryOptions<string, unknown, string> = {};
-    static versionQueryKey = () =>
-        removeUndefinedFromArrayTail([
-            'VersionClient',
-            'version',
-        ]);
-    private static version() {
-        return VersionQuery.Client.version(
-            );
-    }
+  /**
+   * Gets the version of the service.
+   * @return A string representing the version.
+   */
+  static useVersionQuery<TSelectData = string, TError = unknown>(
+    options?: UseQueryOptions<string, TError, TSelectData>,
+  ): UseQueryResult<TSelectData, TError>;
+  static useVersionQuery<TSelectData = string, TError = unknown>(
+    ...params: any[]
+  ): UseQueryResult<TSelectData, TError> {
+    let options: UseQueryOptions<string, TError, TSelectData> | undefined =
+      undefined;
 
-    /**
-     * Gets the version of the service.
-     * @return A string representing the version.
-     */
-    static useVersionQuery<TSelectData = string, TError = unknown>(options?: UseQueryOptions<string, TError, TSelectData>): UseQueryResult<TSelectData, TError>;
-    static useVersionQuery<TSelectData = string, TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
+    options = params[0] as any;
 
-        let options: UseQueryOptions<string, TError, TSelectData> | undefined = undefined;
-        
+    return useQuery<string, TError, TSelectData>({
+      queryFn: VersionQuery.version,
+      queryKey: VersionQuery.versionQueryKey(),
+      ...(VersionQuery.versionDefaultOptions as unknown as UseQueryOptions<
+        string,
+        TError,
+        TSelectData
+      >),
+      ...options,
+    });
+  }
+  /**
+   * Gets the version of the service.
+   * @return A string representing the version.
+   */
+  static setVersionData(
+    queryClient: QueryClient,
+    updater: (data: string | undefined) => string,
+  ) {
+    queryClient.setQueryData(VersionQuery.versionQueryKey(), updater);
+  }
 
-        options = params[0] as any;
-    
-
-        return useQuery<string, TError, TSelectData>({
-            queryFn: VersionQuery.version,
-            queryKey: VersionQuery.versionQueryKey(),
-            ...VersionQuery.versionDefaultOptions as unknown as UseQueryOptions<string, TError, TSelectData>,
-            ...options,
-        });
-    }
-    /**
-     * Gets the version of the service.
-     * @return A string representing the version.
-     */
-    static setVersionData(queryClient: QueryClient, updater: (data: string | undefined) => string, ) {
-        queryClient.setQueryData(VersionQuery.versionQueryKey(),
-            updater
-        );
-    }
-
-    /**
-     * Gets the version of the service.
-     * @return A string representing the version.
-     */
-    static setVersionDataByQueryId(queryClient: QueryClient, queryKey: string, updater: (data: string | undefined) => string) {
-        queryClient.setQueryData(queryKey, updater);
-    }
-    }
+  /**
+   * Gets the version of the service.
+   * @return A string representing the version.
+   */
+  static setVersionDataByQueryId(
+    queryClient: QueryClient,
+    queryKey: string,
+    updater: (data: string | undefined) => string,
+  ) {
+    queryClient.setQueryData(queryKey, updater);
+  }
+}
 
 export class ProblemDetails implements IProblemDetails {
-    type?: string | null;
-    title?: string | null;
-    status?: number | null;
-    detail?: string | null;
-    instance?: string | null;
+  type?: string | null;
+  title?: string | null;
+  status?: number | null;
+  detail?: string | null;
+  instance?: string | null;
 
-    constructor(data?: IProblemDetails) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IProblemDetails) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.type = _data["type"];
-            this.title = _data["title"];
-            this.status = _data["status"];
-            this.detail = _data["detail"];
-            this.instance = _data["instance"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.type = _data['type'];
+      this.title = _data['title'];
+      this.status = _data['status'];
+      this.detail = _data['detail'];
+      this.instance = _data['instance'];
     }
+  }
 
-    static fromJS(data: any): ProblemDetails {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProblemDetails();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): ProblemDetails {
+    data = typeof data === 'object' ? data : {};
+    let result = new ProblemDetails();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        data["title"] = this.title;
-        data["status"] = this.status;
-        data["detail"] = this.detail;
-        data["instance"] = this.instance;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['type'] = this.type;
+    data['title'] = this.title;
+    data['status'] = this.status;
+    data['detail'] = this.detail;
+    data['instance'] = this.instance;
+    return data;
+  }
 }
 
 export interface IProblemDetails {
-    type?: string | null;
-    title?: string | null;
-    status?: number | null;
-    detail?: string | null;
-    instance?: string | null;
+  type?: string | null;
+  title?: string | null;
+  status?: number | null;
+  detail?: string | null;
+  instance?: string | null;
 }
 
-export class HttpValidationProblemDetails extends ProblemDetails implements IHttpValidationProblemDetails {
-    errors?: { [key: string]: string[]; };
+export class HttpValidationProblemDetails
+  extends ProblemDetails
+  implements IHttpValidationProblemDetails
+{
+  errors?: { [key: string]: string[] };
 
-    constructor(data?: IHttpValidationProblemDetails) {
-        super(data);
-    }
+  constructor(data?: IHttpValidationProblemDetails) {
+    super(data);
+  }
 
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            if (_data["errors"]) {
-                this.errors = {} as any;
-                for (let key in _data["errors"]) {
-                    if (_data["errors"].hasOwnProperty(key))
-                        (<any>this.errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
-                }
-            }
+  init(_data?: any) {
+    super.init(_data);
+    if (_data) {
+      if (_data['errors']) {
+        this.errors = {} as any;
+        for (let key in _data['errors']) {
+          if (_data['errors'].hasOwnProperty(key))
+            (<any>this.errors)![key] =
+              _data['errors'][key] !== undefined ? _data['errors'][key] : [];
         }
+      }
     }
+  }
 
-    static fromJS(data: any): HttpValidationProblemDetails {
-        data = typeof data === 'object' ? data : {};
-        let result = new HttpValidationProblemDetails();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): HttpValidationProblemDetails {
+    data = typeof data === 'object' ? data : {};
+    let result = new HttpValidationProblemDetails();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (this.errors) {
-            data["errors"] = {};
-            for (let key in this.errors) {
-                if (this.errors.hasOwnProperty(key))
-                    (<any>data["errors"])[key] = this.errors[key];
-            }
-        }
-        super.toJSON(data);
-        return data; 
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (this.errors) {
+      data['errors'] = {};
+      for (let key in this.errors) {
+        if (this.errors.hasOwnProperty(key))
+          (<any>data['errors'])[key] = this.errors[key];
+      }
     }
+    super.toJSON(data);
+    return data;
+  }
 }
 
 export interface IHttpValidationProblemDetails extends IProblemDetails {
-    errors?: { [key: string]: string[]; };
+  errors?: { [key: string]: string[] };
 }
 
-export class ValidationProblemDetails extends HttpValidationProblemDetails implements IValidationProblemDetails {
-    errors?: { [key: string]: string[]; };
+export class ValidationProblemDetails
+  extends HttpValidationProblemDetails
+  implements IValidationProblemDetails
+{
+  errors?: { [key: string]: string[] };
 
-    constructor(data?: IValidationProblemDetails) {
-        super(data);
-    }
+  constructor(data?: IValidationProblemDetails) {
+    super(data);
+  }
 
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            if (_data["errors"]) {
-                this.errors = {} as any;
-                for (let key in _data["errors"]) {
-                    if (_data["errors"].hasOwnProperty(key))
-                        (<any>this.errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
-                }
-            }
+  init(_data?: any) {
+    super.init(_data);
+    if (_data) {
+      if (_data['errors']) {
+        this.errors = {} as any;
+        for (let key in _data['errors']) {
+          if (_data['errors'].hasOwnProperty(key))
+            (<any>this.errors)![key] =
+              _data['errors'][key] !== undefined ? _data['errors'][key] : [];
         }
+      }
     }
+  }
 
-    static fromJS(data: any): ValidationProblemDetails {
-        data = typeof data === 'object' ? data : {};
-        let result = new ValidationProblemDetails();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): ValidationProblemDetails {
+    data = typeof data === 'object' ? data : {};
+    let result = new ValidationProblemDetails();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (this.errors) {
-            data["errors"] = {};
-            for (let key in this.errors) {
-                if (this.errors.hasOwnProperty(key))
-                    (<any>data["errors"])[key] = this.errors[key];
-            }
-        }
-        super.toJSON(data);
-        return data; 
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (this.errors) {
+      data['errors'] = {};
+      for (let key in this.errors) {
+        if (this.errors.hasOwnProperty(key))
+          (<any>data['errors'])[key] = this.errors[key];
+      }
     }
+    super.toJSON(data);
+    return data;
+  }
 }
 
-export interface IValidationProblemDetails extends IHttpValidationProblemDetails {
-    errors?: { [key: string]: string[]; };
+export interface IValidationProblemDetails
+  extends IHttpValidationProblemDetails {
+  errors?: { [key: string]: string[] };
 }
 
 export class UserDto implements IUserDto {
-    /** User's Id. */
-    id!: string;
-    /** User's first and last name. */
-    fullName!: string;
-    /** Date when user the last time used the app
+  /** User's Id. */
+  id!: string;
+  /** Human-readable Id. */
+  uniqueId!: number;
+  /** User's first and last name. */
+  fullName!: string;
+  /** Date when user the last time used the app
 NULL - if user has never been logged in in the app.  */
-    lastActivityAt!: Date | null;
-    /** Flag indicates that auth code was generated for this user or does not.
+  lastActivityAt!: Date | null;
+  /** Flag indicates that auth code was generated for this user or does not.
 NULL - if user has never been logged in in the app.  */
-    isCodeGenerated!: boolean;
+  isCodeGenerated!: boolean;
 
-    constructor(data?: IUserDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IUserDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.fullName = _data["fullName"];
-            this.lastActivityAt = _data["lastActivityAt"] ? new Date(_data["lastActivityAt"].toString()) : <any>undefined;
-            this.isCodeGenerated = _data["isCodeGenerated"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.uniqueId = _data['uniqueId'];
+      this.fullName = _data['fullName'];
+      this.lastActivityAt = _data['lastActivityAt']
+        ? new Date(_data['lastActivityAt'].toString())
+        : <any>undefined;
+      this.isCodeGenerated = _data['isCodeGenerated'];
     }
+  }
 
-    static fromJS(data: any): UserDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): UserDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new UserDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["fullName"] = this.fullName;
-        data["lastActivityAt"] = this.lastActivityAt ? this.lastActivityAt.toISOString() : this.lastActivityAt;
-        data["isCodeGenerated"] = this.isCodeGenerated;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['uniqueId'] = this.uniqueId;
+    data['fullName'] = this.fullName;
+    data['lastActivityAt'] = this.lastActivityAt
+      ? this.lastActivityAt.toISOString()
+      : this.lastActivityAt;
+    data['isCodeGenerated'] = this.isCodeGenerated;
+    return data;
+  }
 }
 
 export interface IUserDto {
-    /** User's Id. */
-    id: string;
-    /** User's first and last name. */
-    fullName: string;
-    /** Date when user the last time used the app
+  /** User's Id. */
+  id: string;
+  /** Human-readable Id. */
+  uniqueId: number;
+  /** User's first and last name. */
+  fullName: string;
+  /** Date when user the last time used the app
 NULL - if user has never been logged in in the app.  */
-    lastActivityAt: Date | null;
-    /** Flag indicates that auth code was generated for this user or does not.
+  lastActivityAt: Date | null;
+  /** Flag indicates that auth code was generated for this user or does not.
 NULL - if user has never been logged in in the app.  */
-    isCodeGenerated: boolean;
+  isCodeGenerated: boolean;
 }
 
 export class PagedResultOfUserDto implements IPagedResultOfUserDto {
-    data!: UserDto[];
-    totalCount!: number;
+  data!: UserDto[];
+  totalCount!: number;
 
-    constructor(data?: IPagedResultOfUserDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.data = [];
-        }
+  constructor(data?: IPagedResultOfUserDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+    if (!data) {
+      this.data = [];
+    }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["data"])) {
-                this.data = [] as any;
-                for (let item of _data["data"])
-                    this.data!.push(UserDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      if (Array.isArray(_data['data'])) {
+        this.data = [] as any;
+        for (let item of _data['data']) this.data!.push(UserDto.fromJS(item));
+      }
+      this.totalCount = _data['totalCount'];
     }
+  }
 
-    static fromJS(data: any): PagedResultOfUserDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PagedResultOfUserDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): PagedResultOfUserDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PagedResultOfUserDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.data)) {
-            data["data"] = [];
-            for (let item of this.data)
-                data["data"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data; 
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (Array.isArray(this.data)) {
+      data['data'] = [];
+      for (let item of this.data) data['data'].push(item.toJSON());
     }
+    data['totalCount'] = this.totalCount;
+    return data;
+  }
 }
 
 export interface IPagedResultOfUserDto {
-    data: UserDto[];
-    totalCount: number;
+  data: UserDto[];
+  totalCount: number;
 }
 
 /** 0 = Asc 1 = Desc */
 export enum SortOrder {
-    Asc = 0,
-    Desc = 1,
+  Asc = 0,
+  Desc = 1,
 }
 
 export class CreateUserDto implements ICreateUserDto {
-    /** User's login */
-    login!: string;
-    /** User's First name */
-    firstName!: string;
-    /** User's last name. */
-    lastName!: string;
+  /** User's login */
+  login!: string;
+  /** User's First name */
+  firstName!: string;
+  /** User's last name. */
+  lastName!: string;
 
-    constructor(data?: ICreateUserDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ICreateUserDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.login = _data["login"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.login = _data['login'];
+      this.firstName = _data['firstName'];
+      this.lastName = _data['lastName'];
     }
+  }
 
-    static fromJS(data: any): CreateUserDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateUserDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): CreateUserDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new CreateUserDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["login"] = this.login;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['login'] = this.login;
+    data['firstName'] = this.firstName;
+    data['lastName'] = this.lastName;
+    return data;
+  }
 }
 
 export interface ICreateUserDto {
-    /** User's login */
-    login: string;
-    /** User's First name */
-    firstName: string;
-    /** User's last name. */
-    lastName: string;
+  /** User's login */
+  login: string;
+  /** User's First name */
+  firstName: string;
+  /** User's last name. */
+  lastName: string;
 }
 
 export class ProductDto implements IProductDto {
-    id!: number;
-    title!: string;
-    productType!: ProductType;
+  id!: number;
+  title!: string;
+  productType!: ProductType;
 
-    constructor(data?: IProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IProductDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.productType = _data["productType"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.title = _data['title'];
+      this.productType = _data['productType'];
     }
+  }
 
-    static fromJS(data: any): ProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProductDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): ProductDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new ProductDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["productType"] = this.productType;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['title'] = this.title;
+    data['productType'] = this.productType;
+    return data;
+  }
 }
 
 export interface IProductDto {
-    id: number;
-    title: string;
-    productType: ProductType;
+  id: number;
+  title: string;
+  productType: ProductType;
 }
 
 /** 0 = Undefined 1 = Auto 2 = Electronic 3 = Other */
 export enum ProductType {
-    Undefined = 0,
-    Auto = 1,
-    Electronic = 2,
-    Other = 3,
+  Undefined = 0,
+  Auto = 1,
+  Electronic = 2,
+  Other = 3,
 }
 
 export class CreateProductDto implements ICreateProductDto {
-    title!: string;
-    productType!: ProductType;
+  title!: string;
+  productType!: ProductType;
 
-    constructor(data?: ICreateProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ICreateProductDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.title = _data["title"];
-            this.productType = _data["productType"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.title = _data['title'];
+      this.productType = _data['productType'];
     }
+  }
 
-    static fromJS(data: any): CreateProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateProductDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): CreateProductDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new CreateProductDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["productType"] = this.productType;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['title'] = this.title;
+    data['productType'] = this.productType;
+    return data;
+  }
 }
 
 export interface ICreateProductDto {
-    title: string;
-    productType: ProductType;
+  title: string;
+  productType: ProductType;
 }
 
 export class PatchProductDto implements IPatchProductDto {
-    title?: string;
-    productType?: ProductType;
+  title?: string;
+  productType?: ProductType;
 
-    constructor(data?: IPatchProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IPatchProductDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.title = _data["title"];
-            this.productType = _data["productType"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.title = _data['title'];
+      this.productType = _data['productType'];
     }
+  }
 
-    static fromJS(data: any): PatchProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PatchProductDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): PatchProductDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PatchProductDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["productType"] = this.productType;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['title'] = this.title;
+    data['productType'] = this.productType;
+    return data;
+  }
 }
 
 export interface IPatchProductDto {
-    title?: string;
-    productType?: ProductType;
+  title?: string;
+  productType?: ProductType;
 }
 
-export class PagedResultOfProductListItemDto implements IPagedResultOfProductListItemDto {
-    data!: ProductListItemDto[];
-    totalCount!: number;
+export class PagedResultOfProductListItemDto
+  implements IPagedResultOfProductListItemDto
+{
+  data!: ProductListItemDto[];
+  totalCount!: number;
 
-    constructor(data?: IPagedResultOfProductListItemDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.data = [];
-        }
+  constructor(data?: IPagedResultOfProductListItemDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+    if (!data) {
+      this.data = [];
+    }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["data"])) {
-                this.data = [] as any;
-                for (let item of _data["data"])
-                    this.data!.push(ProductListItemDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      if (Array.isArray(_data['data'])) {
+        this.data = [] as any;
+        for (let item of _data['data'])
+          this.data!.push(ProductListItemDto.fromJS(item));
+      }
+      this.totalCount = _data['totalCount'];
     }
+  }
 
-    static fromJS(data: any): PagedResultOfProductListItemDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PagedResultOfProductListItemDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): PagedResultOfProductListItemDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new PagedResultOfProductListItemDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.data)) {
-            data["data"] = [];
-            for (let item of this.data)
-                data["data"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data; 
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (Array.isArray(this.data)) {
+      data['data'] = [];
+      for (let item of this.data) data['data'].push(item.toJSON());
     }
+    data['totalCount'] = this.totalCount;
+    return data;
+  }
 }
 
 export interface IPagedResultOfProductListItemDto {
-    data: ProductListItemDto[];
-    totalCount: number;
+  data: ProductListItemDto[];
+  totalCount: number;
 }
 
 export class ProductListItemDto implements IProductListItemDto {
-    id!: number;
-    title!: string;
-    productType!: ProductType;
+  id!: number;
+  title!: string;
+  productType!: ProductType;
 
-    constructor(data?: IProductListItemDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IProductListItemDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.productType = _data["productType"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.id = _data['id'];
+      this.title = _data['title'];
+      this.productType = _data['productType'];
     }
+  }
 
-    static fromJS(data: any): ProductListItemDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProductListItemDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): ProductListItemDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new ProductListItemDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["productType"] = this.productType;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['id'] = this.id;
+    data['title'] = this.title;
+    data['productType'] = this.productType;
+    return data;
+  }
 }
 
 export interface IProductListItemDto {
-    id: number;
-    title: string;
-    productType: ProductType;
+  id: number;
+  title: string;
+  productType: ProductType;
 }
 
 export class TestPatchDto implements ITestPatchDto {
-    value!: string;
+  value!: string;
 
-    constructor(data?: ITestPatchDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ITestPatchDto) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.value = _data['value'];
     }
+  }
 
-    static fromJS(data: any): TestPatchDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TestPatchDto();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): TestPatchDto {
+    data = typeof data === 'object' ? data : {};
+    let result = new TestPatchDto();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value;
-        return data; 
-    }
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data['value'] = this.value;
+    return data;
+  }
 }
 
 export interface ITestPatchDto {
-    value: string;
+  value: string;
 }
 
 export class ApiException extends Error {
-    message: string;
-    status: number;
-    response: string;
-    headers: { [key: string]: any; };
-    result: any;
+  message: string;
+  status: number;
+  response: string;
+  headers: { [key: string]: any };
+  result: any;
 
-    constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
-        super();
+  constructor(
+    message: string,
+    status: number,
+    response: string,
+    headers: { [key: string]: any },
+    result: any,
+  ) {
+    super();
 
-        this.message = message;
-        this.status = status;
-        this.response = response;
-        this.headers = headers;
-        this.result = result;
-    }
+    this.message = message;
+    this.status = status;
+    this.response = response;
+    this.headers = headers;
+    this.result = result;
+  }
 
-    protected isApiException = true;
+  protected isApiException = true;
 
-    static isApiException(obj: any): obj is ApiException {
-        return obj.isApiException === true;
-    }
+  static isApiException(obj: any): obj is ApiException {
+    return obj.isApiException === true;
+  }
 }
 
-function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): any {
-    if (result !== null && result !== undefined)
-        throw result;
-    else
-        throw new ApiException(message, status, response, headers, null);
+function throwException(
+  message: string,
+  status: number,
+  response: string,
+  headers: { [key: string]: any },
+  result?: any,
+): any {
+  if (result !== null && result !== undefined) throw result;
+  else throw new ApiException(message, status, response, headers, null);
 }
 
 function isAxiosError(obj: any | undefined): obj is AxiosError {
-    return obj && obj.isAxiosError === true;
+  return obj && obj.isAxiosError === true;
 }
 
-import { useQuery, UseQueryResult, QueryFunctionContext, UseQueryOptions, QueryClient } from 'react-query';
+import {
+  useQuery,
+  UseQueryResult,
+  QueryFunctionContext,
+  UseQueryOptions,
+  QueryClient,
+} from 'react-query';
 
 function removeUndefinedFromArrayTail<T>(arr: T[]): T[] {
-    let lastDefinedValueIndex = arr.length - 1;
-    while (lastDefinedValueIndex >= 0) {
-        if (arr[lastDefinedValueIndex] === undefined) {
-            lastDefinedValueIndex--;
-        } else {
-            break;
-        }
+  let lastDefinedValueIndex = arr.length - 1;
+  while (lastDefinedValueIndex >= 0) {
+    if (arr[lastDefinedValueIndex] === undefined) {
+      lastDefinedValueIndex--;
+    } else {
+      break;
     }
-    return lastDefinedValueIndex === arr.length - 1 ? arr : arr.slice(0, lastDefinedValueIndex + 1);
+  }
+  return lastDefinedValueIndex === arr.length - 1
+    ? arr
+    : arr.slice(0, lastDefinedValueIndex + 1);
 }
 
 /*
@@ -2306,16 +2908,18 @@ function removeUndefinedFromArrayTail<T>(arr: T[]): T[] {
   Returns false if parameter is number/string/boolean/Date or Array
 */
 function isParameterObject(param: unknown) {
-    if (param === null || param === undefined) return false;
-    if (param instanceof Array) return false;
-    const isObject = typeof param === 'object';
-    if (!isObject) return false;
-    if (param instanceof Date) return false;
-    return true;
+  if (param === null || param === undefined) return false;
+  if (param instanceof Array) return false;
+  const isObject = typeof param === 'object';
+  if (!isObject) return false;
+  if (param instanceof Date) return false;
+  return true;
 }
 
-type ClientFactoryFunction = <T>(type: (new (...params: any[]) => T)) => T;
-let _clientFactoryFunction: ClientFactoryFunction = <T>(type: (new (...params: any[]) => T)) => {
+type ClientFactoryFunction = <T>(type: new (...params: any[]) => T) => T;
+let _clientFactoryFunction: ClientFactoryFunction = <T>(
+  type: new (...params: any[]) => T,
+) => {
   const params = [_baseUrl, _axiosFactory()];
   return new type(...params);
 };
@@ -2336,7 +2940,7 @@ export function getClientFactory() {
 /*
   Function that will be called from `useQuery...` methods to get a client of certain type
 */
-function createClient<T>(type: (new () => T)) {
+function createClient<T>(type: new () => T) {
   return _clientFactoryFunction(type);
 }
 

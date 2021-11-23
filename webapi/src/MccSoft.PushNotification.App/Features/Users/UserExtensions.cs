@@ -22,6 +22,7 @@ namespace MccSoft.PushNotification.App.Features.Users
                 new UserDto()
                 {
                     Id = record.Id,
+                    UniqueId= record.UniqueId,
                     FullName = $"{record.LastName} {record.FirstName}",
                     LastActivityAt = record.LastVisitDateTime,
                     IsCodeGenerated = record.PasswordHash != null

@@ -73,9 +73,6 @@ export const ProductListPage: React.FC = () => {
         >
           Create product
         </AppLink>
-        <AppLink color={ButtonColor.Primary} to={Links.Authorized.UiKit}>
-          UiKit
-        </AppLink>
       </div>
       <Input
         placeholder={'search'}
