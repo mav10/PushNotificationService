@@ -13,7 +13,7 @@ export const defaultNS = 'translation';
 i18n
   .use(intervalPlural)
   .use(initReactI18next)
-  // .use(HttpApi)
+  .use(HttpApi)
   .init({
     fallbackLng,
     defaultNS,
